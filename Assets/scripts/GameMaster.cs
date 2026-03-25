@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 
+
 public class GameMaster : MonoBehaviour
 {
 
@@ -12,6 +13,8 @@ public class GameMaster : MonoBehaviour
 
     public Transform centerPoint;
     public float spawnRadius = 10f;
+
+    public float spawnHeight = 0.2f;
 
     public float minDistance = 15f; 
     public float maxDistance = 30f;
@@ -42,12 +45,14 @@ public class GameMaster : MonoBehaviour
         Vector2 finalOffset = randomDirection * randomDistance;
 
        
-
+        //TODO: Improve spawing system.
+        //TODO: Stop spawning when game ended/ no centerPoint
+        //TODO: Spawn objects in water
         for (int i = 0; i < multiplier; i++)
         {
              Vector3 spawnPosition = new Vector3(
                  centerPoint.position.x + finalOffset.x + 2*i,
-                 centerPoint.position.y,
+                 spawnHeight,
                  centerPoint.position.z + finalOffset.y + 2 * i
              );
             GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);

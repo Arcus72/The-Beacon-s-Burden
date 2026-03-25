@@ -306,11 +306,15 @@ MonoBehaviour:
   speed: 2
   rotationSpeed: 150
   gravity: -9.81
+  reduceingHealthTime: 5
   targets:
   - {fileID: 0}
   - {fileID: 0}
   _healthbar: {fileID: 429197009973048388}
   _currentHealth: 0
+  attackRange: 1.5
+  attackDamage: 10
+  attackSpeed: 1.5
 --- !u!1 &5964131407327854638
 GameObject:
   m_ObjectHideFlags: 0

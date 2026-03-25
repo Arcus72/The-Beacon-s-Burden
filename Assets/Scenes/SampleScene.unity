@@ -304,7 +304,7 @@ Transform:
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 490.8, y: 56.9, z: 515.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -374,9 +374,10 @@ MonoBehaviour:
   - {fileID: 2021452259}
   - {fileID: 2071818288}
   centerPoint: {fileID: 2021452263}
-  spawnRadius: 10
-  minDistance: 15
-  maxDistance: 30
+  spawnRadius: 20
+  spawnHeight: 7
+  minDistance: 50
+  maxDistance: 60
   isDay: 0
 --- !u!4 &799618928
 Transform:
@@ -469,7 +470,7 @@ Transform:
   m_GameObject: {fileID: 1291380708}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.11, y: -0.07, z: 0.15}
+  m_LocalPosition: {x: 0.11, y: 0.14, z: 0.15}
   m_LocalScale: {x: 1.2, y: 1.5, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -657,6 +658,7 @@ GameObject:
   - component: {fileID: 1794644459}
   - component: {fileID: 1794644458}
   - component: {fileID: 1794644457}
+  - component: {fileID: 1794644460}
   m_Layer: 0
   m_Name: Player camera
   m_TagString: Untagged
@@ -673,7 +675,7 @@ Transform:
   m_GameObject: {fileID: 1794644454}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.26, z: 0}
+  m_LocalPosition: {x: 0, y: 1.14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -782,6 +784,18 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1794644460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1794644454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2acab14fb38c41143a3552dd026d907d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &2021452259
 GameObject:
   m_ObjectHideFlags: 0
@@ -795,6 +809,7 @@ GameObject:
   - component: {fileID: 2021452261}
   - component: {fileID: 2021452260}
   - component: {fileID: 2021452264}
+  - component: {fileID: 2021452265}
   m_Layer: 0
   m_Name: LigthHouse
   m_TagString: Untagged
@@ -889,8 +904,8 @@ Transform:
   m_GameObject: {fileID: 2021452259}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 502, y: 5.125, z: 513.2}
-  m_LocalScale: {x: 1, y: 3.554, z: 1}
+  m_LocalPosition: {x: 489.8, y: 28, z: 520.76}
+  m_LocalScale: {x: 12.159789, y: 44.827713, z: 9.85442}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -907,6 +922,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a410b213209442fb15a69799f0240a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UIElements.PanelEventHandler
+--- !u!114 &2021452265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021452259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ffc9c60b2582494390a21378b3b49e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  health: 100
 --- !u!1 &2071818288
 GameObject:
   m_ObjectHideFlags: 0
@@ -959,7 +987,7 @@ Transform:
   m_GameObject: {fileID: 2071818288}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 5.67, z: 495}
+  m_LocalPosition: {x: 500, y: 8.34, z: 495}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -979,16 +1007,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8e916c391023dd458f24a36d72428fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseLook
-  playerCamera: {fileID: 1794644459}
+  playerCamera: {fileID: 1794644460}
   walkSpeed: 6
   runSpeed: 12
-  jumpPower: 7
-  gravity: 10
+  jumpPower: 5.27
+  gravity: 12.4
   lookSpeed: 0.24
   lookXLimit: 45
   defaultHeight: 2
   crouchHeight: 1
   crouchSpeed: 3
+  health: 100
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

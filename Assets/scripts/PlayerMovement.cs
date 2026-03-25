@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.InputSystem; // Dodane!
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IDamageable
 {
-    public Camera playerCamera;
+    public PlayerCamera playerCamera;
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
     public float jumpPower = 7f;
@@ -16,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     public float defaultHeight = 2f;
     public float crouchHeight = 1f;
     public float crouchSpeed = 3f;
+
+    public float health = 100;
 
     private Vector3 moveDirection = Vector3.zero;
     private float rotationX = 0;
@@ -28,6 +31,23 @@ public class PlayerMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        health -= amount;
+
+     
+        if (playerCamera != null)
+        {
+            playerCamera.Shake(0.15f, 0.3f); // (Duration, Strength)
+        }
+
+        if (health <= 0)
+        {
+            //TODO: End game after players's death
+            Destroy(gameObject);
+        }
     }
 
     void Update()
@@ -78,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Crouch
-        if (keyboard.rKey.isPressed && canMove)
+        if (keyboard.ctrlKey.isPressed && canMove)
         {
             characterController.height = crouchHeight;
             walkSpeed = crouchSpeed;
