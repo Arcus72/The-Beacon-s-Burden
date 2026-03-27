@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Rendering.LookDev;
 using UnityEngine;
-using UnityEngine.InputSystem; // Dodane!
+using UnityEngine.InputSystem;
+
+
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour, IDamageable
+public class Player : MonoBehaviour, IDamageable
 {
     public PlayerCamera playerCamera;
     public float walkSpeed = 6f;
@@ -39,15 +41,17 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
      
         if (playerCamera != null)
-        {
             playerCamera.Shake(0.15f, 0.3f); // (Duration, Strength)
-        }
+
 
         if (health <= 0)
-        {
-            //TODO: End game after players's death
-            Destroy(gameObject);
-        }
+            die();
+    }
+
+    void die()
+    {
+        Destroy(gameObject);
+        GameMaster.Instance.EndGame();
     }
 
     void Update()
@@ -83,19 +87,13 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         // Jump
         if (keyboard.spaceKey.wasPressedThisFrame && canMove && characterController.isGrounded)
-        {
             moveDirection.y = jumpPower;
-        }
         else
-        {
             moveDirection.y = movementDirectionY;
-        }
 
         // Gravitation
         if (!characterController.isGrounded)
-        {
             moveDirection.y -= gravity * Time.deltaTime;
-        }
 
         // Crouch
         if (keyboard.ctrlKey.isPressed && canMove)

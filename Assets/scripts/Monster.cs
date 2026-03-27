@@ -1,6 +1,8 @@
 using UnityEngine;
 
 
+//TODO: check closest target every 0.5s
+//TODO: Monsters should hit instantly
 
 [RequireComponent(typeof(CharacterController))]
 public class Monster :  MonoBehaviour
@@ -43,11 +45,19 @@ public class Monster :  MonoBehaviour
         {
             if (target != null)
             {
-                float distance = Vector3.Distance(transform.position, target.transform.position);
-                if (distance < closestDistance)
+                Collider targetCollider = target.GetComponent<Collider>();
+
+                if (targetCollider != null)
                 {
-                    closestDistance = distance;
-                    tempTarget = target;
+                
+                    Vector3 closestPointOnSurface = targetCollider.ClosestPoint(transform.position);
+                    float distance = Vector3.Distance(transform.position, closestPointOnSurface);
+
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        tempTarget = target;
+                    }
                 }
             }
         }
@@ -67,7 +77,7 @@ public class Monster :  MonoBehaviour
 
     void Update()
     {
-    
+  
         reduceHealth(reduceingHealthTime, 5f);
 
         if (_currentHealth <= 0)
@@ -89,27 +99,17 @@ public class Monster :  MonoBehaviour
             Vector3 targetPoint;
 
             if (targetCollider != null)
-            {
                 targetPoint = targetCollider.ClosestPoint(transform.position);
-            }
             else
-            {
                 targetPoint = closestTarget.transform.position;
-            }
 
-          
             float distanceToSurface = Vector3.Distance(transform.position, targetPoint);
 
             if (distanceToSurface <= attackRange)
-            {
-               
                 AttackTarget(closestTarget);
-            }
             else
-            {
-                
                 MoveTowardsPoint(targetPoint);
-            }
+            
         }
     }
 
@@ -120,13 +120,10 @@ public class Monster :  MonoBehaviour
 
         
         if (controller.isGrounded)
-        {
             verticalVelocity = -0.5f;
-        }
         else
-        {
             verticalVelocity += gravity * Time.deltaTime;
-        }
+      
 
        
         Vector3 moveVector = (direction * speed) + (Vector3.up * verticalVelocity);
@@ -152,9 +149,8 @@ public class Monster :  MonoBehaviour
             IDamageable damageable = target.GetComponent<IDamageable>();
 
             if (damageable != null)
-            {
                 damageable.TakeDamage(attackDamage);
-            }
+          
 
             attackTimer = 0f;
         }

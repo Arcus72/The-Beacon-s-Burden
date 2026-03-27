@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+
+//TODO: Make bar rotate to player
+
 public class MonsterHealthBar : MonoBehaviour
 {
 

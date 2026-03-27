@@ -9,6 +9,7 @@ public interface IDamageable
 public class LighthouseScript : MonoBehaviour, IDamageable
 {
     public float health = 100f;
+
     private Renderer _renderer;
     private Color _originalEmission;
 
@@ -34,18 +35,24 @@ public class LighthouseScript : MonoBehaviour, IDamageable
             StopAllCoroutines();
             StartCoroutine(GlowRed());
         }
-        //TODO: End game after lighthouse's death
-        if (health <= 0) Destroy(gameObject);
+
+        if (health <= 0)
+            die();
+           
+    }
+
+    void die()
+    {
+        Destroy(gameObject);
+        GameMaster.Instance.EndGame();
     }
 
     IEnumerator GlowRed()
     {
-        
         _renderer.material.SetColor("_EmissionColor", Color.red * 5f);
 
         yield return new WaitForSeconds(0.1f);
 
-       
         _renderer.material.SetColor("_EmissionColor", _originalEmission);
     }
 }

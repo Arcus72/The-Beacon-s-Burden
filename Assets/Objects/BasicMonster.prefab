@@ -306,7 +306,7 @@ MonoBehaviour:
   speed: 2
   rotationSpeed: 150
   gravity: -9.81
-  reduceingHealthTime: 5
+  reduceingHealthTime: 10
   targets:
   - {fileID: 0}
   - {fileID: 0}

@@ -1,19 +1,19 @@
-using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 public class GameMaster : MonoBehaviour
 {
+    public static GameMaster Instance;
 
     public GameObject basicMonsterPrefab;
     public GameObject smallMonsterPrefab;
     public GameObject[] targets = new GameObject[2];
 
-
     public Transform centerPoint;
     public float spawnRadius = 10f;
-
     public float spawnHeight = 0.2f;
 
     public float minDistance = 15f; 
@@ -24,6 +24,20 @@ public class GameMaster : MonoBehaviour
 
 
     public bool isDay = false;
+    public bool isSpawnMonsters = true;
+
+    private List<GameObject> activeMonsters = new List<GameObject>();
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    public void EndGame()
+    {
+        isSpawnMonsters = false;
+        ClearAllMonsters();
+    }
 
 
     void doOnDelay(ref float timer, float delay, System.Action fn)
@@ -45,9 +59,7 @@ public class GameMaster : MonoBehaviour
         Vector2 finalOffset = randomDirection * randomDistance;
 
        
-        //TODO: Improve spawing system.
-        //TODO: Stop spawning when game ended/ no centerPoint
-        //TODO: Spawn objects in water
+        //TODO: Improve clowd spawing system.
         for (int i = 0; i < multiplier; i++)
         {
              Vector3 spawnPosition = new Vector3(
@@ -58,13 +70,31 @@ public class GameMaster : MonoBehaviour
             GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
             clone.name = name;
             clone.GetComponent<Monster>().targets = targets;
+
+            activeMonsters.Add(clone);
         }
+    }
+
+    public void ClearAllMonsters()
+    {
+        foreach (GameObject monster in activeMonsters)
+        {
+            if (monster != null)
+            {
+                Destroy(monster);
+            }
+        }
+        activeMonsters.Clear();
     }
 
 
     void Update()
     {
-        doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
-        doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 5));
+        if (isSpawnMonsters)
+        {
+            doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
+            doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 5));
+        }
+      
     }
 }
