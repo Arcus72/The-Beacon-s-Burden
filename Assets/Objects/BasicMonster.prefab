@@ -405,7 +405,7 @@ GameObject:
   - component: {fileID: 5202351650485442683}
   m_Layer: 0
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

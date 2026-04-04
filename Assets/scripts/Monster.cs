@@ -75,6 +75,17 @@ public class Monster :  MonoBehaviour
         }
     }
 
+    public void TakeDamage(float amount)
+    {
+        _currentHealth -= amount;
+        if (_currentHealth < 0) _currentHealth = 0;
+
+        if (_healthbar)
+            _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
+
+        Debug.Log("Potwór dosta³ obra¿enia! HP: " + _currentHealth);
+    }
+
     void Update()
     {
   
