@@ -37,7 +37,11 @@ public class LighthouseScript : MonoBehaviour, IDamageable
         }
 
         if (health <= 0)
+        {
+            health = 0;
             die();
+        }
+            
            
     }
 

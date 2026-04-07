@@ -45,7 +45,12 @@ public class Player : MonoBehaviour, IDamageable
 
 
         if (health <= 0)
+        {
+            health = 0;
             die();
+
+        }
+            
     }
 
     void die()

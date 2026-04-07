@@ -8,6 +8,7 @@ public class GameMaster : MonoBehaviour
 {
     public static GameMaster Instance;
 
+    [Header("Monster Settings")]
     public GameObject basicMonsterPrefab;
     public GameObject smallMonsterPrefab;
     public GameObject[] targets = new GameObject[2];
@@ -19,11 +20,15 @@ public class GameMaster : MonoBehaviour
     public float minDistance = 15f; 
     public float maxDistance = 30f;
 
+    [Header("Time Settings")]
+    public Light sunLight; 
+    public float dayDuration = 180f;  
+    public float nightDuration = 360f; 
+    private float cycleTimer = 0f;
+    public bool isDay = true;
+
     private float basicTimer = 0f;
     private float smallTimer = 0f;
-
-
-    public bool isDay = false;
     public bool isSpawnMonsters = true;
 
     private List<GameObject> activeMonsters = new List<GameObject>();
@@ -39,6 +44,30 @@ public class GameMaster : MonoBehaviour
         ClearAllMonsters();
     }
 
+    void HandleTimeCycle()
+    {
+        cycleTimer += Time.deltaTime;
+        float currentLimit = isDay ? dayDuration : nightDuration;
+
+
+        if (sunLight != null)
+        {
+            float rotationAngle = (cycleTimer / currentLimit) * 180f;
+            if (isDay)
+                sunLight.transform.rotation = Quaternion.Euler(rotationAngle, -90, 0); 
+            else
+                sunLight.transform.rotation = Quaternion.Euler(rotationAngle + 180f, -90, 0); 
+
+            sunLight.intensity = isDay ? 1f : 0.1f;
+        }
+
+        if (cycleTimer >= currentLimit)
+        {
+            isDay = !isDay;
+            cycleTimer = 0f;
+            Debug.Log(isDay ? "Wsta³ dzieñ - bezpiecznie!" : "Zapad³a noc - uwa¿aj!");
+        }
+    }
 
     void doOnDelay(ref float timer, float delay, System.Action fn)
     {
@@ -48,6 +77,12 @@ public class GameMaster : MonoBehaviour
             fn();
             timer = 0f;
         }
+    }
+
+    public float GetTimeLeft()
+    {
+        float currentLimit = isDay ? dayDuration : nightDuration;
+        return currentLimit - cycleTimer;
     }
 
     public void SpawnMonster(GameObject monsterPrefab, string name,  int multiplier)
@@ -90,11 +125,18 @@ public class GameMaster : MonoBehaviour
 
     void Update()
     {
-        if (isSpawnMonsters)
+        HandleTimeCycle();
+
+        if (isSpawnMonsters && !isDay) 
         {
             doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
             doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 5));
         }
-      
+
+        if (isDay && activeMonsters.Count > 0)
+        {
+            ClearAllMonsters();
+        }
+
     }
 }
