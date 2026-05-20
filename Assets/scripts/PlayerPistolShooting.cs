@@ -6,7 +6,6 @@ public class PlayerShooting : MonoBehaviour
     [Header("Base Weapon Stats")]
     public float damage = 10f;
     public float range = 100f;
-    public Transform camTransform;
     public LayerMask ignoreLayer;
 
     [Header("Weapon Visuals & Animation")]
@@ -17,24 +16,37 @@ public class PlayerShooting : MonoBehaviour
     public GameObject muzzleFlashPrefab; // Twoje stworzone œwiat³o (Point Light)
     public GameObject bulletPrefab;      // Twoja stworzona smuga (Trail Renderer)
 
+    private Camera mainCamera;           // Automatycznie znaleziona kamera gracza
+
+    void Start()
+    {
+        // AUTOMATYCZNE ZABEZPIECZENIE: 
+        // Skrypt sam szuka g³ównej kamery w grze, dziêki czemu celownik i strza³ zawsze bêd¹ idealnie wyœrodkowane
+        mainCamera = Camera.main;
+
+        if (mainCamera == null)
+        {
+            Debug.LogError("B£¥D: Nie znaleziono obiektu z tagiem 'MainCamera' w scenie! Upewnij siê, ¿e Twoja kamera ma ustawiony Tag jako MainCamera.");
+        }
+    }
+
     void Update()
     {
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("KLIKNIÊCIE WYKRYTE!");
+            Debug.Log("KLIKNIÊCIE WYKRYTE NA BRONI: " + gameObject.name);
             Shoot();
         }
     }
 
     void Shoot()
     {
+        if (mainCamera == null) return;
+
         // 1. ANIMACJA PISTOLETU
         if (gunAnimator != null)
         {
-            // Resetuje parametr (na wszelki wypadek)
             gunAnimator.ResetTrigger("Fire");
-
-            // Wymusza odpalenie animacji od stanu "Pistol_Shoot" od klatki 0, na warstwie 0 (domyœlnej)
             gunAnimator.Play("Pistol_Shoot", 0, 0f);
         }
 
@@ -50,8 +62,11 @@ public class PlayerShooting : MonoBehaviour
         RaycastHit hit;
         Vector3 targetPoint;
 
-        // 3. LOGIKA TRAFIENIA (Raycast)
-        if (Physics.Raycast(camTransform.position, camTransform.forward, out hit, range, ~ignoreLayer))
+        // 3. LOGIKA TRAFIENIA (Raycast z pozycji i kierunku KAMERY, a nie pistoletu!)
+        Vector3 rayOrigin = mainCamera.transform.position;
+        Vector3 rayDirection = mainCamera.transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out hit, range, ~ignoreLayer))
         {
             targetPoint = hit.point; // Trafiliœmy w coœ – smuga poleci do tego punktu
             Debug.Log("TRAFIONO W: " + hit.transform.name);
@@ -65,14 +80,14 @@ public class PlayerShooting : MonoBehaviour
         else
         {
             // Nie trafiliœmy w nic – smuga leci przed siebie na maksymalny dystans broni
-            targetPoint = camTransform.position + camTransform.forward * range;
+            targetPoint = rayOrigin + rayDirection * range;
         }
 
         // 4. SPAWN SMUGI POCISKU
         if (bulletPrefab != null && muzzlePoint != null)
         {
             GameObject tracer = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-            // Odpalamy pomocnicz¹ funkcjê (Corutynê), która przesunie smugê do celu
+            // Odpalamy pomocnicz¹ funkcjê (Corutynê), która przesunie smugê od lufy (muzzlePoint) do celu (targetPoint)
             StartCoroutine(MoveTracer(tracer, targetPoint));
         }
     }
