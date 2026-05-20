@@ -1,5 +1,11 @@
 {
     "m_Dictionary": {
-        "m_DictionaryValues": []
+        "m_DictionaryValues": [
+            {
+                "type": "Unity.AssetManager.Core.Editor.SavedAssetSearchFilterSettings, Unity.AssetManager.Core.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "key": "AM4U.savedAssetSearchFilterSettings",
+                "value": "{\"m_Value\":{\"m_SavedAssetSearchFilters\":[{\"m_FilterId\":\"7b0c1624-dbb2-4aed-845c-2d0f57a8a253\",\"m_OrganizationId\":\"7972552106951\",\"m_FilterName\":\"New saved view\",\"m_AssetSearchFilter\":{\"Searches\":[],\"AssetIds\":[],\"AssetVersions\":[],\"CreatedBy\":[],\"UpdatedBy\":[],\"Status\":[],\"Collection\":[\"\"],\"AssetTypeStrings\":[],\"AssetTypes\":[],\"Tags\":[],\"Labels\":[],\"IsExactMatchSearch\":false,\"m_SerializableSearchFilterMetadata\":{\"textMedatatas\":[],\"booleanMedatatas\":[],\"numberMedatatas\":[],\"urlMedatatas\":[],\"timestampMedatatas\":[],\"userMedatatas\":[],\"singleSelectionMedatatas\":[],\"multiSelectionMedatatas\":[]}},\"m_SortingOptions\":{\"SortField\":0,\"SortingOrder\":0}}]}}"
+            }
+        ]
     }
 }

@@ -48,4 +48,9 @@ public class WeaponManager : MonoBehaviour
         currentWeaponIndex = index;
         Debug.Log("Wybrano bron: " + weapons[index].name);
     }
+
+    public int GetCurrentWeaponIndex()
+    {
+        return currentWeaponIndex;
+    }
 }
