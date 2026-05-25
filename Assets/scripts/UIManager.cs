@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Dla tekstu
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,7 +11,9 @@ public class UIManager : MonoBehaviour
 
     [Header("UI")]
     public Slider playerHealthBar;
+    public Slider playerShieldBar;
     public Slider lighthouseHealthBar;
+    public Slider lighthouseShieldBar;
     public TextMeshProUGUI timeText;
 
     void Start()
@@ -21,12 +23,20 @@ public class UIManager : MonoBehaviour
     {
         playerHealthBar.maxValue = playerScript.health; 
         playerHealthBar.value = playerScript.health;
+
+        playerShieldBar.maxValue = playerScript.shield; 
+        playerShieldBar.value = playerScript.shield;
     }
     
     if (lighthouseScript != null) 
     {
         lighthouseHealthBar.maxValue = lighthouseScript.health; 
         lighthouseHealthBar.value = lighthouseScript.health;
+
+        lighthouseShieldBar.maxValue = lighthouseScript.health; 
+        lighthouseShieldBar.value = lighthouseScript.health;
+
+
     }
     }
 
@@ -38,24 +48,26 @@ public class UIManager : MonoBehaviour
 
    void UpdateStats()
     {
-        if (playerScript != null)
-        {
+        if (playerScript != null){
             playerHealthBar.value = playerScript.health;
+            playerShieldBar.value = playerScript.shield;
         }
-        else
-        {
+            
+        else{
             playerHealthBar.value = 0;
+            playerShieldBar.value = 0;
+       
         }
-
-
-        if (lighthouseScript != null)
-        {
+         
+        if (lighthouseScript != null){
             lighthouseHealthBar.value = lighthouseScript.health;
+            lighthouseShieldBar.value = lighthouseScript.shield;
         }
-        else
-        {
+        else{
             lighthouseHealthBar.value = 0;
+            lighthouseShieldBar.value = 0;
         }
+            
     }
 
     void UpdateTimeDisplay()

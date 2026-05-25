@@ -25,6 +25,7 @@ public class Monster :  MonoBehaviour
     private float attackTimer = 0f;
 
     private float timer = 0f;
+    private float targetSearchTimer = 0f;
     private CharacterController controller;
     private float verticalVelocity;
 
@@ -83,29 +84,33 @@ public class Monster :  MonoBehaviour
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
 
-        Debug.Log("Potwór dosta³ obra¿enia! HP: " + _currentHealth);
+        Debug.Log("Potwï¿½r dostaï¿½ obraï¿½enia! HP: " + _currentHealth);
     }
 
+public void Die() {
+    LootManager.Instance.SpawnLoot(transform.position);
+    Destroy(gameObject);
+}
+    
     void Update()
     {
-  
-        reduceHealth(reduceingHealthTime, 5f);
-
+       
         if (_currentHealth <= 0)
         {
-            Destroy(gameObject);
+            Die();
             return;
         }
 
-        if (_healthbar)
-            _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
-
-    
-        FindClosestTarget();
+   
+        targetSearchTimer += Time.deltaTime;
+        if (targetSearchTimer >= 0.5f)
+        {
+            FindClosestTarget();
+            targetSearchTimer = 0f;
+        }
 
         if (closestTarget != null)
         {
-           
             Collider targetCollider = closestTarget.GetComponent<Collider>();
             Vector3 targetPoint;
 
@@ -117,12 +122,26 @@ public class Monster :  MonoBehaviour
             float distanceToSurface = Vector3.Distance(transform.position, targetPoint);
 
             if (distanceToSurface <= attackRange)
+            {
                 AttackTarget(closestTarget);
+            }
             else
+            {
                 MoveTowardsPoint(targetPoint);
-            
+
+                if (attackTimer < attackSpeed)
+                {
+                    attackTimer += Time.deltaTime;
+                }
+            }
         }
+
+        if (_healthbar)
+            _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
     }
+
+    
+   
 
     void MoveTowardsPoint(Vector3 goal)
     {
