@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Monster
   maxHealth: 1
-  speed: 1
+  speed: 2
   rotationSpeed: 150
   gravity: -9.81
   reduceingHealthTime: 120
@@ -197,6 +197,7 @@ MonoBehaviour:
   attackRange: 1.5
   attackDamage: 10
   attackSpeed: 1.5
+  lootDropChance: 0.2
 --- !u!65 &7285665958811432167
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -216,8 +217,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.5, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1.6002617, z: 1.0218081}
+  m_Center: {x: 0, y: 0.07915368, z: 0.010904163}
 --- !u!1 &5708914130406853404
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,7 +230,6 @@ GameObject:
   - component: {fileID: 8950572440289232669}
   - component: {fileID: 5290170298366887105}
   - component: {fileID: 5879118335778785402}
-  - component: {fileID: 2795300088871953290}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -246,7 +246,7 @@ Transform:
   m_GameObject: {fileID: 5708914130406853404}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.929, z: 0}
+  m_LocalPosition: {x: 0, y: -0.45, z: 0}
   m_LocalScale: {x: 1, y: 0.4576948, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -310,24 +310,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2795300088871953290
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708914130406853404}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}

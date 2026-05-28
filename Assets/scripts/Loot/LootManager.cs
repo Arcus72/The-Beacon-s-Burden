@@ -28,10 +28,13 @@ public class LootManager : MonoBehaviour
         return loots[losowyIndeks];
     }
 
-    public void SpawnLoot(Vector3 position) {
+    public void SpawnLoot(Vector3 position, float dropChance) 
+    {
+        if (UnityEngine.Random.value > dropChance) 
+            return; 
+
         GameObject itemToSpawn = WylosujObiekt();
-        if (itemToSpawn != null) {
-            Instantiate(itemToSpawn, position, Quaternion.identity);
-        }
+        if (itemToSpawn != null) 
+            Instantiate(itemToSpawn, position, Quaternion.identity); 
     }
 }

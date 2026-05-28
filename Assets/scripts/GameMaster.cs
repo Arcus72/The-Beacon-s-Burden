@@ -65,7 +65,7 @@ public class GameMaster : MonoBehaviour
         {
             isDay = !isDay;
             cycleTimer = 0f;
-            Debug.Log(isDay ? "Wsta³ dzieñ - bezpiecznie!" : "Zapad³a noc - uwa¿aj!");
+            Debug.Log(isDay ? "Wstaï¿½ dzieï¿½ - bezpiecznie!" : "Zapadï¿½a noc - uwaï¿½aj!");
         }
     }
 
@@ -85,30 +85,42 @@ public class GameMaster : MonoBehaviour
         return currentLimit - cycleTimer;
     }
 
-    public void SpawnMonster(GameObject monsterPrefab, string name,  int multiplier)
+  public void SpawnMonster(GameObject monsterPrefab, string name, int multiplier)
+{
+    Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
+    float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
+    Vector2 finalOffset = randomDirection * randomDistance;
+
+    Vector3 packCenter = new Vector3(
+        centerPoint.position.x + finalOffset.x,
+        spawnHeight,
+        centerPoint.position.z + finalOffset.y
+    );
+
+    int columns = Mathf.CeilToInt(Mathf.Sqrt(multiplier));
+    float spacing = 2f; 
+
+    for (int i = 0; i < multiplier; i++)
     {
-        Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
+        int row = i / columns;
+        int col = i % columns;
 
-        float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
+        float xOffset = (col - (columns - 1) / 2f) * spacing;
+        float zOffset = (row - (columns - 1) / 2f) * spacing;
 
-        Vector2 finalOffset = randomDirection * randomDistance;
+        Vector3 spawnPosition = new Vector3(
+            packCenter.x + xOffset,
+            spawnHeight,
+            packCenter.z + zOffset
+        );
 
-       
-        //TODO: Improve clowd spawing system.
-        for (int i = 0; i < multiplier; i++)
-        {
-             Vector3 spawnPosition = new Vector3(
-                 centerPoint.position.x + finalOffset.x + 2*i,
-                 spawnHeight,
-                 centerPoint.position.z + finalOffset.y + 2 * i
-             );
-            GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
-            clone.name = name;
-            clone.GetComponent<Monster>().targets = targets;
+        GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
+        clone.name = name;
+        clone.GetComponent<Monster>().targets = targets;
 
-            activeMonsters.Add(clone);
-        }
+        activeMonsters.Add(clone);
     }
+}
 
     public void ClearAllMonsters()
     {
@@ -129,8 +141,8 @@ public class GameMaster : MonoBehaviour
 
         if (isSpawnMonsters && !isDay) 
         {
-            doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
-            doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 5));
+            // doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
+            doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 15));
         }
 
         if (isDay && activeMonsters.Count > 0)

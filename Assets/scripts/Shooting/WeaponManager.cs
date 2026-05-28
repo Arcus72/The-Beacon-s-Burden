@@ -5,13 +5,33 @@ public class WeaponManager : MonoBehaviour
 {
     [Header("Lista Broni (w kolejnosci 1, 2, 3, 4)")]
     public GameObject[] weapons;
+    private bool[] unlockedWeapons;
 
     private int currentWeaponIndex = 0;
 
+    public static WeaponManager Instance;
+    
+    void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
     void Start()
     {
+        unlockedWeapons = new bool[weapons.Length];
+        unlockedWeapons[0] = true;
+        for (int i = 1; i < weapons.Length; i++)
+             unlockedWeapons[i] = false;
+     
         // Na starcie aktywujemy tylko pierwsza bron (pistolet), reszte chowamy
         SelectWeapon(0);
+    }
+
+    public void AddWeapon(int weaponIndex){
+        unlockedWeapons[weaponIndex] = true;
     }
 
     void Update()
@@ -28,6 +48,8 @@ public class WeaponManager : MonoBehaviour
 
     void SelectWeapon(int index)
     {
+        if(!unlockedWeapons[index])
+        return;
         // Zabezpieczenie na wypadek, gdybysmy nie mieli jeszcze przypisanych wszystkich 4 broni
         if (index < 0 || index >= weapons.Length || weapons[index] == null)
         {

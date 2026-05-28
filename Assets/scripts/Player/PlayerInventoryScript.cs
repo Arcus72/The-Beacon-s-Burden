@@ -45,15 +45,17 @@ public class PlayerInventory : MonoBehaviour
         if (amount > itemAmount) 
         {
             return false;
-        }
-
-        if (amount == itemAmount)
+        }else if (amount == itemAmount)
         {
             items.Remove(item); 
+             UpdateInventoryUI(); 
             return true;
         }
 
+
         items[item] -= amount;
+        UpdateInventoryUI(); 
+      
         return true;
     }
 

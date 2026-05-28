@@ -24,6 +24,8 @@ public class Monster :  MonoBehaviour
     public float attackSpeed = 1.5f;
     private float attackTimer = 0f;
 
+    public float lootDropChance = 1f;
+
     private float timer = 0f;
     private float targetSearchTimer = 0f;
     private CharacterController controller;
@@ -88,7 +90,7 @@ public class Monster :  MonoBehaviour
     }
 
 public void Die() {
-    LootManager.Instance.SpawnLoot(transform.position);
+    LootManager.Instance.SpawnLoot(transform.position, lootDropChance);
     Destroy(gameObject);
 }
     
