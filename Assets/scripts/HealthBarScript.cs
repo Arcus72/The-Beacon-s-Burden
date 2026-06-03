@@ -13,11 +13,16 @@ public class MonsterHealthBar : MonoBehaviour
   
    
 
-    public void UpdateHealtBar(float maxHealth, float currentHealth1)
+    public void UpdateHealtBar(float maxHealth, float currentHealth)
     {
-        currentHealth = currentHealth1;
+        currentHealth = currentHealth;
         float newX = currentHealth * _deafoultBarSize / maxHealth;
         _healthbarSprite.rectTransform.sizeDelta = new Vector2(newX, _healthbarSprite.rectTransform.sizeDelta.y);
+
+        if (currentHealth == maxHealth)
+            gameObject.SetActive(false);
+        else
+            gameObject.SetActive(true);
     }
 
 }

@@ -27,6 +27,12 @@ public class GameMaster : MonoBehaviour
     private float cycleTimer = 0f;
     public bool isDay = true;
 
+    [Header("Lighthouse Gleam")]
+    public Transform lighthouseGleam;
+    [SerializeField] private float rotationSpeed = 50f;
+    private float myAngle = 0f;
+
+    [Header("Monsters")]
     private float basicTimer = 0f;
     private float smallTimer = 0f;
     public bool isSpawnMonsters = true;
@@ -58,7 +64,7 @@ public class GameMaster : MonoBehaviour
             else
                 sunLight.transform.rotation = Quaternion.Euler(rotationAngle + 180f, -90, 0); 
 
-            sunLight.intensity = isDay ? 1f : 0.1f;
+            sunLight.intensity = isDay ? 1f : 0f;
         }
 
         if (cycleTimer >= currentLimit)
@@ -141,8 +147,18 @@ public class GameMaster : MonoBehaviour
 
         if (isSpawnMonsters && !isDay) 
         {
-            // doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
+            doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
             doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 15));
+        }
+
+        if (lighthouseGleam != null)
+        {
+            lighthouseGleam.gameObject.SetActive(!isDay);
+
+            if (!isDay)
+            {
+                lighthouseGleam.Rotate(Vector3.up * rotationSpeed * Time.deltaTime);
+            }
         }
 
         if (isDay && activeMonsters.Count > 0)

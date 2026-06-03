@@ -1,9 +1,6 @@
 using UnityEngine;
 
 
-//TODO: check closest target every 0.5s
-//TODO: Monsters should hit instantly
-
 [RequireComponent(typeof(CharacterController))]
 public class Monster :  MonoBehaviour
 {
