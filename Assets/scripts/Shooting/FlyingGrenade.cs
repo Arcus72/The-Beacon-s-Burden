@@ -33,7 +33,7 @@ public class FlyingGrenade : MonoBehaviour
             Destroy(fx, 3f);
         }
 
-        // Szukamy wszystkich colliderów w strefie wybuchu
+        // Szukamy wszystkich colliderï¿½w w strefie wybuchu
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (Collider hit in colliders)
@@ -41,7 +41,7 @@ public class FlyingGrenade : MonoBehaviour
             // 1. REAKCJA POTWORA
             if (hit.CompareTag("Monster"))
             {
-                Monster monster = hit.GetComponent<Monster>() ?? hit.GetComponentInParent<Monster>();
+                BasicMonster monster = hit.GetComponent<BasicMonster>() ?? hit.GetComponentInParent<BasicMonster>();
                 if (monster != null)
                 {
                     monster.TakeDamage(damage);
@@ -51,7 +51,7 @@ public class FlyingGrenade : MonoBehaviour
             }
 
             // 2. REAKCJA GRACZA (Naprawiona)
-            // Sprawdza czy trafiony obiekt (lub jego rodzic, jeœli collider jest na dziecku) ma tag "Player"
+            // Sprawdza czy trafiony obiekt (lub jego rodzic, jeï¿½li collider jest na dziecku) ma tag "Player"
             if (hit.CompareTag("Player") || (hit.transform.parent != null && hit.transform.parent.CompareTag("Player")))
             {
                 // Szukamy Twojego skryptu Player na trafionym obiekcie lub u rodzica
@@ -60,7 +60,7 @@ public class FlyingGrenade : MonoBehaviour
                 if (playerScript != null)
                 {
                     playerScript.TakeDamage(10f);
-                    Debug.Log(" GRANAT ZADA£ OBRA¯ENIA GRACZOWI! Aktualne HP: " + playerScript.health);
+                    Debug.Log(" GRANAT ZADAï¿½ OBRAï¿½ENIA GRACZOWI! Aktualne HP: " + playerScript.health);
                 }
                 else
                 {

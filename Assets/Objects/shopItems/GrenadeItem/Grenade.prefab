@@ -507,6 +507,7 @@ MonoBehaviour:
   cenaTMP: {fileID: 1588241089540601498}
   targetHighlightObject: {fileID: 0}
   highlightColor: {r: 0.015686274, g: 1, b: 0.9009032, a: 1}
+  audioSource: {fileID: 8701437787509854594, guid: cb9e7df7c07f6dc4d9d3d429253fcc18, type: 3}
 --- !u!1 &5900656388912923705
 GameObject:
   m_ObjectHideFlags: 0

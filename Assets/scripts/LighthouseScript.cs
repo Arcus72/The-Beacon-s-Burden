@@ -31,6 +31,10 @@ public class LighthouseScript : MonoBehaviour, IDamageable
         }
     }
 
+    public void RepairShield(){
+        shield = 100;
+    }
+
 
     void Start()
     {

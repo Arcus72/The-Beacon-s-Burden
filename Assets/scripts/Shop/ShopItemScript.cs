@@ -18,6 +18,9 @@ public class ShopItemScript : MonoBehaviour
     private Color originalEmissionColor;
     private bool hasEmission = false;
 
+    [Header("Sound Settings")]
+    public AudioSource audioSource;
+
     void Start()
     {
         nazwaTMP.text = itemToBuy.itemName;
@@ -77,10 +80,19 @@ public class ShopItemScript : MonoBehaviour
         }
     }
 
+    public void PlaySound()
+    {
+        if (audioSource != null)
+        {
+            audioSource.Play();
+        }
+    }
+
     private void TryBuyItem()
     {
         if (PlayerInventory.Instance.TryRemoveItem(itemToBuy.price_type, itemToBuy.price)) 
         {
+            PlaySound();
             itemToBuy.UseItem();
             Destroy(gameObject);
         }

@@ -4,20 +4,20 @@ using UnityEngine.InputSystem;
 public class PlayerShotgunShooting : MonoBehaviour
 {
     [Header("Shotgun Stats")]
-    public float damagePerPellet = 7f;   // Obra¿enia zadawane przez JEDEN od³amek
-    public int pelletCount = 8;          // Ile od³amków wylatuje przy jednym strzale
-    public float range = 25f;            // Krótki zasiêg typowy dla strzelby
-    public float spreadSpread = 0.1f;    // Jak bardzo pociski siê rozpraszaj¹ (rozrzut)
+    public float damagePerPellet = 7f;   // Obraï¿½enia zadawane przez JEDEN odï¿½amek
+    public int pelletCount = 8;          // Ile odï¿½amkï¿½w wylatuje przy jednym strzale
+    public float range = 25f;            // Krï¿½tki zasiï¿½g typowy dla strzelby
+    public float spreadSpread = 0.1f;    // Jak bardzo pociski siï¿½ rozpraszajï¿½ (rozrzut)
     public LayerMask ignoreLayer;
 
     [Header("Weapon Visuals & Animation")]
     public Animator gunAnimator;
     public string shootAnimationName = "Shotgun_Shoot"; // Nazwa Twojej animacji shotguna
-    public Transform muzzlePoint;        // Pusty obiekt na koñcu lufy strzelby
+    public Transform muzzlePoint;        // Pusty obiekt na koï¿½cu lufy strzelby
 
     [Header("Custom Effects (Prefabs)")]
-    public GameObject muzzleFlashPrefab; // Wiêkszy rozb³ysk œwiat³a
-    public GameObject bulletPrefab;      // Prefab smugi (bêdzie klonowany wielokrotnie)
+    public GameObject muzzleFlashPrefab; // Wiï¿½kszy rozbï¿½ysk ï¿½wiatï¿½a
+    public GameObject bulletPrefab;      // Prefab smugi (bï¿½dzie klonowany wielokrotnie)
 
     private Camera mainCamera;
 
@@ -26,7 +26,7 @@ public class PlayerShotgunShooting : MonoBehaviour
         mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogError("B£¥D: Nie znaleziono obiektu z tagiem 'MainCamera'!");
+            Debug.LogError("Bï¿½ï¿½D: Nie znaleziono obiektu z tagiem 'MainCamera'!");
         }
     }
 
@@ -34,7 +34,7 @@ public class PlayerShotgunShooting : MonoBehaviour
     {
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("STRZA£ Z SHOTGUNA: " + gameObject.name);
+            Debug.Log("STRZAï¿½ Z SHOTGUNA: " + gameObject.name);
             ShootShotgun();
         }
     }
@@ -50,7 +50,7 @@ public class PlayerShotgunShooting : MonoBehaviour
             gunAnimator.Play(shootAnimationName, 0, 0f);
         }
 
-        // 2. DU¯Y ROZB£YSK (Muzzle Flash)
+        // 2. DUï¿½Y ROZBï¿½YSK (Muzzle Flash)
         if (muzzleFlashPrefab != null && muzzlePoint != null)
         {
             GameObject flash = Instantiate(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
@@ -58,30 +58,30 @@ public class PlayerShotgunShooting : MonoBehaviour
             Destroy(flash, 0.05f);
         }
 
-        // Baza kierunku strza³u z kamery
+        // Baza kierunku strzaï¿½u z kamery
         Vector3 rayOrigin = mainCamera.transform.position;
         Vector3 baseDirection = mainCamera.transform.forward;
 
-        // 3. LOGIKA ROZPRYSKU (Pêtla generuj¹ca wiele od³amków)
+        // 3. LOGIKA ROZPRYSKU (Pï¿½tla generujï¿½ca wiele odï¿½amkï¿½w)
         for (int i = 0; i < pelletCount; i++)
         {
-            // Obliczamy losowy rozrzut dla ka¿dego od³amka osobno
+            // Obliczamy losowy rozrzut dla kaï¿½dego odï¿½amka osobno
             Vector3 spreadFactor = mainCamera.transform.right * Random.Range(-spreadSpread, spreadSpread)
                                  + mainCamera.transform.up * Random.Range(-spreadSpread, spreadSpread);
 
-            // Koñcowy, lekko przekrzywiony kierunek lotu od³amka
+            // Koï¿½cowy, lekko przekrzywiony kierunek lotu odï¿½amka
             Vector3 pelletDirection = (baseDirection + spreadFactor).normalized;
 
             RaycastHit hit;
             Vector3 targetPoint;
 
-            // Sprawdzamy trafienie dla konkretnego od³amka
+            // Sprawdzamy trafienie dla konkretnego odï¿½amka
             if (Physics.Raycast(rayOrigin, pelletDirection, out hit, range, ~ignoreLayer))
             {
                 targetPoint = hit.point;
 
-                // Zadawanie obra¿eñ potworowi (ka¿dy od³amek rani osobno!)
-                Monster monster = hit.transform.GetComponentInParent<Monster>();
+                // Zadawanie obraï¿½eï¿½ potworowi (kaï¿½dy odï¿½amek rani osobno!)
+                BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
                 if (monster != null)
                 {
                     monster.TakeDamage(damagePerPellet);
@@ -89,11 +89,11 @@ public class PlayerShotgunShooting : MonoBehaviour
             }
             else
             {
-                // Jeœli od³amek w nic nie trafi³, leci na maksymalny (ale krótki) zasiêg strzelby
+                // Jeï¿½li odï¿½amek w nic nie trafiï¿½, leci na maksymalny (ale krï¿½tki) zasiï¿½g strzelby
                 targetPoint = rayOrigin + pelletDirection * range;
             }
 
-            // 4. SPAWN SMUGI DLA KA¯DEGO OD£AMKA
+            // 4. SPAWN SMUGI DLA KAï¿½DEGO ODï¿½AMKA
             if (bulletPrefab != null && muzzlePoint != null)
             {
                 GameObject tracer = Instantiate(bulletPrefab, muzzlePoint.position, Quaternion.identity);
@@ -106,7 +106,7 @@ public class PlayerShotgunShooting : MonoBehaviour
     {
         Vector3 startPoint = tracer.transform.position;
         float time = 0;
-        float speed = 0.02f; // Od³amki strzelby mog¹ lecieæ odrobinê szybciej dla dynamiki
+        float speed = 0.02f; // Odï¿½amki strzelby mogï¿½ lecieï¿½ odrobinï¿½ szybciej dla dynamiki
 
         while (time < 1)
         {

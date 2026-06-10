@@ -1,32 +1,35 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(CharacterController))]
-public class Monster :  MonoBehaviour
-{
+public class BasicMonster :  MonoBehaviour
+{   
+    public string name;
+    [Header("Monster's movement")]
     public float maxHealth = 100f;
-    public float speed = 2.0f;
+    public float speed = 4.0f;
     public float rotationSpeed = 150f;
     public float gravity = -9.81f;
-    public float reduceingHealthTime = 1f;
 
     public GameObject[] targets = new GameObject[2];
-    private GameObject closestTarget;
+    protected GameObject closestTarget;
 
     public MonsterHealthBar _healthbar;
     public float _currentHealth;
-
+    [Header("Attack details")]
     public float attackRange = 1.5f;
     public float attackDamage = 10f;
     public float attackSpeed = 1.5f;
-    private float attackTimer = 0f;
+    protected float attackTimer = 0f;
 
+    [Header("Odds")]
     public float lootDropChance = 1f;
+    public float spawningChance = 0.2f;
+    public int spawnMultiplayer = 1;
 
-    private float timer = 0f;
-    private float targetSearchTimer = 0f;
-    private CharacterController controller;
-    private float verticalVelocity;
+    protected float timer = 0f;
+    protected float targetSearchTimer = 0f;
+    protected CharacterController controller;
+    protected float verticalVelocity;
 
     void Start()
     {
@@ -75,6 +78,19 @@ public class Monster :  MonoBehaviour
         }
     }
 
+    public virtual void Heal(float amount)
+{
+    if (_currentHealth <= 0) return; 
+
+    _currentHealth += amount;
+    if (_currentHealth > maxHealth) _currentHealth = maxHealth;
+
+    if (_healthbar)
+        _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
+
+    Debug.Log(name + " został uleczony! HP: " + _currentHealth);
+}
+
     public void TakeDamage(float amount)
     {
         _currentHealth -= amount;
@@ -86,12 +102,12 @@ public class Monster :  MonoBehaviour
         Debug.Log("Potw�r dosta� obra�enia! HP: " + _currentHealth);
     }
 
-public void Die() {
-    LootManager.Instance.SpawnLoot(transform.position, lootDropChance);
-    Destroy(gameObject);
-}
+    public void Die() {
+        LootManager.Instance.SpawnLoot(transform.position, lootDropChance);
+        Destroy(gameObject);
+    }
     
-    void Update()
+    protected virtual void Update()
     {
        
         if (_currentHealth <= 0)

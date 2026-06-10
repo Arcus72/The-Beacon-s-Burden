@@ -9,8 +9,7 @@ public class GameMaster : MonoBehaviour
     public static GameMaster Instance;
 
     [Header("Monster Settings")]
-    public GameObject basicMonsterPrefab;
-    public GameObject smallMonsterPrefab;
+    public List<GameObject> monsters = new List<GameObject>();
     public GameObject[] targets = new GameObject[2];
 
     public Transform centerPoint;
@@ -33,10 +32,9 @@ public class GameMaster : MonoBehaviour
     private float myAngle = 0f;
 
     [Header("Monsters")]
-    private float basicTimer = 0f;
-    private float smallTimer = 0f;
+    
     public bool isSpawnMonsters = true;
-
+    private float spawnTimer = 0f;
     private List<GameObject> activeMonsters = new List<GameObject>();
 
     void Awake()
@@ -91,7 +89,7 @@ public class GameMaster : MonoBehaviour
         return currentLimit - cycleTimer;
     }
 
-  public void SpawnMonster(GameObject monsterPrefab, string name, int multiplier)
+  public void SpawnMonster(GameObject monsterPrefab, BasicMonster monsterScript)
 {
     Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
     float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
@@ -102,6 +100,8 @@ public class GameMaster : MonoBehaviour
         spawnHeight,
         centerPoint.position.z + finalOffset.y
     );
+
+    int multiplier = UnityEngine.Random.Range(1, monsterScript.spawnMultiplayer + 1);
 
     int columns = Mathf.CeilToInt(Mathf.Sqrt(multiplier));
     float spacing = 2f; 
@@ -121,8 +121,8 @@ public class GameMaster : MonoBehaviour
         );
 
         GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
-        clone.name = name;
-        clone.GetComponent<Monster>().targets = targets;
+        clone.name = monsterPrefab.name;
+        clone.GetComponent<BasicMonster>().targets = targets;
 
         activeMonsters.Add(clone);
     }
@@ -140,6 +140,17 @@ public class GameMaster : MonoBehaviour
         activeMonsters.Clear();
     }
 
+    void SpawnAllMonsters(){
+         foreach (var monsterPrefab in monsters) 
+            {
+                BasicMonster monsterScript = monsterPrefab.GetComponent<BasicMonster>();
+
+                if (monsterScript != null) 
+                    if (UnityEngine.Random.value <= monsterScript.spawningChance)
+                        SpawnMonster(monsterPrefab, monsterScript);
+                   
+            }
+    }
 
     void Update()
     {
@@ -147,8 +158,12 @@ public class GameMaster : MonoBehaviour
 
         if (isSpawnMonsters && !isDay) 
         {
-            doOnDelay(ref basicTimer, 3f, () => SpawnMonster(basicMonsterPrefab, "basicMonstar", 1));
-            doOnDelay(ref smallTimer, 6f, () => SpawnMonster(smallMonsterPrefab, "smallMonstar", 15));
+           spawnTimer += Time.deltaTime;
+           if (spawnTimer >= 2f){
+                SpawnAllMonsters();
+                spawnTimer = 0f;
+           }
+                
         }
 
         if (lighthouseGleam != null)

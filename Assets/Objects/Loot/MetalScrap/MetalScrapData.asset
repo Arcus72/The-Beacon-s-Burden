@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6716ad722cf7c8d49bebde1c6984630f, type: 3}
   m_Name: MetalScrapData
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Metal Scrap
+  itemName: Metal
   icon: {fileID: 21300000, guid: 5ec8fc5d939ea2244985ca77a114c9d0, type: 3}

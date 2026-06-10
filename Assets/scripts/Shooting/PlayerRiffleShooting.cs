@@ -4,15 +4,15 @@ using UnityEngine.InputSystem;
 public class PlayerRifleShooting : MonoBehaviour
 {
     [Header("Rifle Stats")]
-    public float damage = 12f;           // Obra¿enia jednego pocisku
-    public float range = 10f;           // Du¿y zasiêg karabinu
-    public float fireRate = 0.1f;        // Przerwa miêdzy strza³ami w sekundach (0.1s = 10 strza³ów na sekundê!)
+    public float damage = 12f;           // Obraï¿½enia jednego pocisku
+    public float range = 10f;           // Duï¿½y zasiï¿½g karabinu
+    public float fireRate = 0.1f;        // Przerwa miï¿½dzy strzaï¿½ami w sekundach (0.1s = 10 strzaï¿½ï¿½w na sekundï¿½!)
     public float spread = 0.03f;         // Delikatny rozrzut automatyczny przy serii
     public LayerMask ignoreLayer;
 
     [Header("Weapon Visuals & Animation")]
     public Animator gunAnimator;
-    public string shootAnimationName = "Rifle_Shoot"; // Nazwa animacji strza³u karabinu
+    public string shootAnimationName = "Rifle_Shoot"; // Nazwa animacji strzaï¿½u karabinu
     public Transform muzzlePoint;        // Koniec lufy karabinu
 
     [Header("Custom Effects (Prefabs)")]
@@ -20,15 +20,15 @@ public class PlayerRifleShooting : MonoBehaviour
     public GameObject bulletPrefab;
 
     private Camera mainCamera;
-    private float nextTimeToFire = 0f;   // Licznik odmierzaj¹cy czas do kolejnego strza³u
-    private bool isShooting = false;     // Czy gracz trzyma przycisk strza³u
+    private float nextTimeToFire = 0f;   // Licznik odmierzajï¿½cy czas do kolejnego strzaï¿½u
+    private bool isShooting = false;     // Czy gracz trzyma przycisk strzaï¿½u
 
     void Start()
     {
         mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogError("B£¥D: Nie znaleziono obiektu z tagiem 'MainCamera'!");
+            Debug.LogError("Bï¿½ï¿½D: Nie znaleziono obiektu z tagiem 'MainCamera'!");
         }
     }
 
@@ -36,13 +36,13 @@ public class PlayerRifleShooting : MonoBehaviour
     {
         if (Mouse.current == null) return;
 
-        // Sprawdzamy, czy gracz W£AŒNIE NACISN¥£ lub TRZYMA lewy przycisk myszy
+        // Sprawdzamy, czy gracz Wï¿½Aï¿½NIE NACISNï¿½ï¿½ lub TRZYMA lewy przycisk myszy
         if (Mouse.current.leftButton.isPressed)
         {
-            // Sprawdzamy, czy minê³o doœæ czasu od ostatniego strza³u (funkcja Time.time)
+            // Sprawdzamy, czy minï¿½o doï¿½ï¿½ czasu od ostatniego strzaï¿½u (funkcja Time.time)
             if (Time.time >= nextTimeToFire)
             {
-                nextTimeToFire = Time.time + fireRate; // Ustawiamy czas kolejnego strza³u
+                nextTimeToFire = Time.time + fireRate; // Ustawiamy czas kolejnego strzaï¿½u
                 ShootRifle();
             }
         }
@@ -59,7 +59,7 @@ public class PlayerRifleShooting : MonoBehaviour
             gunAnimator.Play(shootAnimationName, 0, 0f);
         }
 
-        // 2. ROZB£YSK (Muzzle Flash)
+        // 2. ROZBï¿½YSK (Muzzle Flash)
         if (muzzleFlashPrefab != null && muzzlePoint != null)
         {
             GameObject flash = Instantiate(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
@@ -67,11 +67,11 @@ public class PlayerRifleShooting : MonoBehaviour
             Destroy(flash, 0.05f);
         }
 
-        // Przygotowanie wektorów do strza³u z losowym rozrzutem serii
+        // Przygotowanie wektorï¿½w do strzaï¿½u z losowym rozrzutem serii
         Vector3 rayOrigin = mainCamera.transform.position;
         Vector3 baseDirection = mainCamera.transform.forward;
 
-        // Ma³y rozrzut imituj¹cy odrzut karabinu (Recoil/Spread)
+        // Maï¿½y rozrzut imitujï¿½cy odrzut karabinu (Recoil/Spread)
         Vector3 spreadFactor = mainCamera.transform.right * Random.Range(-spread, spread)
                              + mainCamera.transform.up * Random.Range(-spread, spread);
 
@@ -84,9 +84,9 @@ public class PlayerRifleShooting : MonoBehaviour
         if (Physics.Raycast(rayOrigin, rifleDirection, out hit, range, ~ignoreLayer))
         {
             targetPoint = hit.point;
-            Debug.Log("KARABIN TRAFI£ W: " + hit.transform.name);
+            Debug.Log("KARABIN TRAFIï¿½ W: " + hit.transform.name);
 
-            Monster monster = hit.transform.GetComponentInParent<Monster>();
+            BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
             if (monster != null)
             {
                 monster.TakeDamage(damage);
@@ -109,7 +109,7 @@ public class PlayerRifleShooting : MonoBehaviour
     {
         Vector3 startPoint = tracer.transform.position;
         float time = 0;
-        float speed = 0.015f; // Pociski z karabinu lataj¹ najszybciej, wrêcz b³yskawicznie
+        float speed = 0.015f; // Pociski z karabinu latajï¿½ najszybciej, wrï¿½cz bï¿½yskawicznie
 
         while (time < 1)
         {

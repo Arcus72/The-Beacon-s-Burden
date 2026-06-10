@@ -10,10 +10,10 @@ public class PlayerShooting : MonoBehaviour
 
     [Header("Weapon Visuals & Animation")]
     public Animator gunAnimator;
-    public Transform muzzlePoint;        // Pusty obiekt na koñcu lufy pistoletu
+    public Transform muzzlePoint;        // Pusty obiekt na koï¿½cu lufy pistoletu
 
     [Header("Custom Effects (Prefabs)")]
-    public GameObject muzzleFlashPrefab; // Twoje stworzone œwiat³o (Point Light)
+    public GameObject muzzleFlashPrefab; // Twoje stworzone ï¿½wiatï¿½o (Point Light)
     public GameObject bulletPrefab;      // Twoja stworzona smuga (Trail Renderer)
 
     private Camera mainCamera;           // Automatycznie znaleziona kamera gracza
@@ -21,12 +21,12 @@ public class PlayerShooting : MonoBehaviour
     void Start()
     {
         // AUTOMATYCZNE ZABEZPIECZENIE: 
-        // Skrypt sam szuka g³ównej kamery w grze, dziêki czemu celownik i strza³ zawsze bêd¹ idealnie wyœrodkowane
+        // Skrypt sam szuka gï¿½ï¿½wnej kamery w grze, dziï¿½ki czemu celownik i strzaï¿½ zawsze bï¿½dï¿½ idealnie wyï¿½rodkowane
         mainCamera = Camera.main;
 
         if (mainCamera == null)
         {
-            Debug.LogError("B£¥D: Nie znaleziono obiektu z tagiem 'MainCamera' w scenie! Upewnij siê, ¿e Twoja kamera ma ustawiony Tag jako MainCamera.");
+            Debug.LogError("Bï¿½ï¿½D: Nie znaleziono obiektu z tagiem 'MainCamera' w scenie! Upewnij siï¿½, ï¿½e Twoja kamera ma ustawiony Tag jako MainCamera.");
         }
     }
 
@@ -34,7 +34,7 @@ public class PlayerShooting : MonoBehaviour
     {
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("KLIKNIÊCIE WYKRYTE NA BRONI: " + gameObject.name);
+            Debug.Log("KLIKNIï¿½CIE WYKRYTE NA BRONI: " + gameObject.name);
             Shoot();
         }
     }
@@ -50,15 +50,15 @@ public class PlayerShooting : MonoBehaviour
             gunAnimator.Play("Pistol_Shoot", 0, 0f);
         }
 
-        // 2. ROZB£YSK (Muzzle Flash)
+        // 2. ROZBï¿½YSK (Muzzle Flash)
         if (muzzleFlashPrefab != null && muzzlePoint != null)
         {
             GameObject flash = Instantiate(muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
-            flash.transform.SetParent(muzzlePoint); // Przypina rozb³ysk do lufy
+            flash.transform.SetParent(muzzlePoint); // Przypina rozbï¿½ysk do lufy
             Destroy(flash, 0.05f);
         }
 
-        // Przygotowanie zmiennych do obs³ugi smugi pocisku
+        // Przygotowanie zmiennych do obsï¿½ugi smugi pocisku
         RaycastHit hit;
         Vector3 targetPoint;
 
@@ -68,10 +68,10 @@ public class PlayerShooting : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, rayDirection, out hit, range, ~ignoreLayer))
         {
-            targetPoint = hit.point; // Trafiliœmy w coœ – smuga poleci do tego punktu
+            targetPoint = hit.point; // Trafiliï¿½my w coï¿½ ï¿½ smuga poleci do tego punktu
             Debug.Log("TRAFIONO W: " + hit.transform.name);
 
-            Monster monster = hit.transform.GetComponentInParent<Monster>();
+            BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
             if (monster != null)
             {
                 monster.TakeDamage(damage);
@@ -79,7 +79,7 @@ public class PlayerShooting : MonoBehaviour
         }
         else
         {
-            // Nie trafiliœmy w nic – smuga leci przed siebie na maksymalny dystans broni
+            // Nie trafiliï¿½my w nic ï¿½ smuga leci przed siebie na maksymalny dystans broni
             targetPoint = rayOrigin + rayDirection * range;
         }
 
@@ -87,12 +87,12 @@ public class PlayerShooting : MonoBehaviour
         if (bulletPrefab != null && muzzlePoint != null)
         {
             GameObject tracer = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-            // Odpalamy pomocnicz¹ funkcjê (Corutynê), która przesunie smugê od lufy (muzzlePoint) do celu (targetPoint)
+            // Odpalamy pomocniczï¿½ funkcjï¿½ (Corutynï¿½), ktï¿½ra przesunie smugï¿½ od lufy (muzzlePoint) do celu (targetPoint)
             StartCoroutine(MoveTracer(tracer, targetPoint));
         }
     }
 
-    // Pomocnicza funkcja przesuwaj¹ca smugê w czasie rzeczywistym
+    // Pomocnicza funkcja przesuwajï¿½ca smugï¿½ w czasie rzeczywistym
     private System.Collections.IEnumerator MoveTracer(GameObject tracer, Vector3 target)
     {
         Vector3 startPoint = tracer.transform.position;
@@ -106,9 +106,9 @@ public class PlayerShooting : MonoBehaviour
             {
                 tracer.transform.position = Vector3.Lerp(startPoint, target, time);
             }
-            yield return null; // Czekamy na kolejn¹ klatkê
+            yield return null; // Czekamy na kolejnï¿½ klatkï¿½
         }
 
-        Destroy(tracer); // Niszczymy smugê, gdy dotrze na miejsce
+        Destroy(tracer); // Niszczymy smugï¿½, gdy dotrze na miejsce
     }
 }
