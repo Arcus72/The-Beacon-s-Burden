@@ -1,58 +1,58 @@
-using UnityEngine;
+// using UnityEngine;
 
-public class MonsterHealer : BasicMonster
-{
-    [Header("Healer Settings")]
-    public float healRadius = 10f;       
-    public float healCooldown = 3f;    
-    public float healAmount = 10f;
+// public class MonsterHealer : BasicMonster
+// {
+//     [Header("Healer Settings")]
+//     public float healRadius = 10f;       
+//     public float healCooldown = 3f;    
+//     public float healAmount = 10f;
 
-    private float healTimer = 0f;
+//     private float healTimer = 0f;
     
-    public float orbsRotationSpeed = 50f;
-    public GameObject Orbs;
+//     public float orbsRotationSpeed = 50f;
+//     public GameObject Orbs;
 
 
-    private void RotateOrbs(){
-        Orbs.transform.Rotate(Vector3.up * orbsRotationSpeed * Time.deltaTime);
-    }
+//     private void RotateOrbs(){
+//         Orbs.transform.Rotate(Vector3.up * orbsRotationSpeed * Time.deltaTime);
+//     }
 
-    protected override void Update()
-    {
+//     protected override void Update()
+//     {
     
-        base.Update();
+//         base.Update();
 
-        RotateOrbs();
+//         RotateOrbs();
 
      
-        healTimer += Time.deltaTime;
-        if (healTimer >= healCooldown)
-        {
-            HealNearbyMonsters();
-            healTimer = 0f;
-        }
-    }
+//         healTimer += Time.deltaTime;
+//         if (healTimer >= healCooldown)
+//         {
+//             HealNearbyMonsters();
+//             healTimer = 0f;
+//         }
+//     }
 
-    private void HealNearbyMonsters()
-    {
+//     private void HealNearbyMonsters()
+//     {
        
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, healRadius);
+//         Collider[] hitColliders = Physics.OverlapSphere(transform.position, healRadius);
 
-        foreach (Collider hitCollider in hitColliders)
-        {
+//         foreach (Collider hitCollider in hitColliders)
+//         {
           
-            BasicMonster nearbyMonster = hitCollider.GetComponent<BasicMonster>();
+//             BasicMonster nearbyMonster = hitCollider.GetComponent<BasicMonster>();
 
-            if (nearbyMonster != null && nearbyMonster is not MonsterHealer)
-            {
-                nearbyMonster.Heal(healAmount);
-            }
-        }
-    }
+//             if (nearbyMonster != null && nearbyMonster is not MonsterHealer)
+//             {
+//                 nearbyMonster.Heal(healAmount);
+//             }
+//         }
+//     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, healRadius);
-    }
-}
+//     private void OnDrawGizmosSelected()
+//     {
+//         Gizmos.color = Color.green;
+//         Gizmos.DrawWireSphere(transform.position, healRadius);
+//     }
+// }

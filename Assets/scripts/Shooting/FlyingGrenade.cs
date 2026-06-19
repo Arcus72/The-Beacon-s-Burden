@@ -41,7 +41,7 @@ public class FlyingGrenade : MonoBehaviour
             // 1. REAKCJA POTWORA
             if (hit.CompareTag("Monster"))
             {
-                BasicMonster monster = hit.GetComponent<BasicMonster>() ?? hit.GetComponentInParent<BasicMonster>();
+                IMonster monster = hit.GetComponent<IMonster>() ?? hit.GetComponentInParent<IMonster>();
                 if (monster != null)
                 {
                     monster.TakeDamage(damage);

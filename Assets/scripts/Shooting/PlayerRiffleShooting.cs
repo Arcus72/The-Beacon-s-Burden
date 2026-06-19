@@ -86,7 +86,7 @@ public class PlayerRifleShooting : MonoBehaviour
             targetPoint = hit.point;
             Debug.Log("KARABIN TRAFI� W: " + hit.transform.name);
 
-            BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
+            IMonster monster = hit.transform.GetComponentInParent<IMonster>();
             if (monster != null)
             {
                 monster.TakeDamage(damage);

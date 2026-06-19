@@ -81,7 +81,7 @@ public class PlayerShotgunShooting : MonoBehaviour
                 targetPoint = hit.point;
 
                 // Zadawanie obra�e� potworowi (ka�dy od�amek rani osobno!)
-                BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
+                IMonster monster = hit.transform.GetComponentInParent<IMonster>();
                 if (monster != null)
                 {
                     monster.TakeDamage(damagePerPellet);

@@ -71,7 +71,7 @@ public class PlayerShooting : MonoBehaviour
             targetPoint = hit.point; // Trafili�my w co� � smuga poleci do tego punktu
             Debug.Log("TRAFIONO W: " + hit.transform.name);
 
-            BasicMonster monster = hit.transform.GetComponentInParent<BasicMonster>();
+            IMonster monster = hit.transform.GetComponentInParent<IMonster>();
             if (monster != null)
             {
                 monster.TakeDamage(damage);
