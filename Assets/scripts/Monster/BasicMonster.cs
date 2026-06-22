@@ -32,10 +32,24 @@ public class BasicMonster : MonoBehaviour, IMonster
     public float spawningChance = 0.2f;
     public int spawnMultiplayer = 1;
 
+    [Header("Sound Settings (Single AudioSource Setup)")]
+    [Tooltip("The ONLY Audio Source component on this monster (Set it to 3D!)")]
+    public AudioSource audioSource;
+    public AudioClip walkSound;
+    public AudioClip attackSound;
+    public AudioClip deathSound;
+
+    [Header("Sound Volumes (0.0 to 1.0)")]
+    [Range(0f, 1f)] public float walkVolume = 0.5f;
+    [Range(0f, 1f)] public float attackVolume = 1.0f;
+    [Range(0f, 1f)] public float deathVolume = 1.0f;
+
     [Header("Animator parameters")]
-    public string walkParameter = "Walk";
-    public string attackTrigger = "Attack";
-    public string deadTrigger = "Dead";
+    private string walkParameter = "Walk";
+    private string attackTrigger = "Attack";
+    private string deadTrigger = "Dead";
+    public int totalAttacks = 2;
+    public int totalWalk = 2;
 
     private float targetSearchTimer = 0f;
     private CharacterController controller;
@@ -45,6 +59,15 @@ public class BasicMonster : MonoBehaviour, IMonster
     private bool isDead = false;
     private bool isMovingThisFrame = false;
     private bool wasMoving = false;
+
+    // Cached optimization flags for animator parameters
+    private bool hasAttackIndex;
+    private bool hasWalkIndex;
+
+    // While a one-shot (attack/death) is playing we must not let the walk-audio
+    // manager call Stop() on the shared AudioSource, otherwise it cuts the
+    // one-shot off the same frame it starts. Holds the time the one-shot ends.
+    private float oneShotEndTime;
 
     // ---- IMonster ----
     public GameObject[] Targets { get => targets; set => targets = value; }
@@ -63,14 +86,84 @@ public class BasicMonster : MonoBehaviour, IMonster
         {
             Debug.LogError($"Brak komponentu Animator na obiekcie {gameObject.name}!");
         }
+        else
+        {
+            // Cache animator parameter existence to avoid garbage collection/CPU overhead in Update
+            hasAttackIndex = HasAnimatorParameter(animator, "AttackIndex", AnimatorControllerParameterType.Int);
+            hasWalkIndex = HasAnimatorParameter(animator, "WalkIndex", AnimatorControllerParameterType.Int);
+        }
 
-         if (controller != null)
+        if (controller != null)
         {
             foreach (Collider c in GetComponentsInChildren<Collider>(true))
             {
                 if (c != controller)
                     Physics.IgnoreCollision(controller, c);
             }
+        }
+
+        // 3D spatial settings (Spatial Blend, Volume Rolloff, Min/Max Distance)
+        // are configured on the AudioSource component in the Inspector.
+        // Set Volume Rolloff to "Linear Rolloff" so the sound is fully silent
+        // past Max Distance (Logarithmic never reaches zero).
+
+        // Initialize the AudioSource with the walking sound clip, volume, and loop configurations
+        if (audioSource != null && walkSound != null)
+        {
+            audioSource.clip = walkSound;
+            audioSource.volume = walkVolume;
+            audioSource.loop = true;
+        }
+
+        SelectWalkStyle();
+    }
+
+    private bool HasAnimatorParameter(Animator anim, string paramName, AnimatorControllerParameterType type)
+    {
+        foreach (AnimatorControllerParameter param in anim.parameters)
+        {
+            if (param.name == paramName && param.type == type)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void PerformRandomAttack()
+    {
+        int randomIndex = Random.Range(0, totalAttacks);
+        animator.ResetTrigger(walkParameter);
+        
+        if (hasAttackIndex)
+        {
+            animator.SetInteger("AttackIndex", randomIndex);
+        }
+        
+        animator.SetTrigger(attackTrigger);
+
+        PlayOneShotSound(attackSound, attackVolume);
+    }
+
+    // Plays a one-shot (attack/death) on the shared AudioSource and records when
+    // it finishes so HandleWalkAudio() leaves the source alone until then.
+    private void PlayOneShotSound(AudioClip clip, float volume)
+    {
+        if (audioSource == null || clip == null) return;
+
+        // Stop the looping walk sound so it doesn't play under the one-shot.
+        if (audioSource.isPlaying) audioSource.Stop();
+
+        audioSource.PlayOneShot(clip, volume);
+        oneShotEndTime = Time.time + clip.length;
+    }
+
+    void SelectWalkStyle()
+    {
+        int randomIndex = Random.Range(0, totalWalk);
+        if (hasWalkIndex)
+        {
+            animator.SetInteger("WalkIndex", randomIndex);
         }
     }
 
@@ -130,6 +223,37 @@ public class BasicMonster : MonoBehaviour, IMonster
             animator.SetTrigger(walkParameter);
 
         wasMoving = isMovingThisFrame;
+
+        // Manage walking sound loop based on whether the monster moved this frame
+        HandleWalkAudio();
+    }
+
+    private void HandleWalkAudio()
+    {
+        if (audioSource == null || walkSound == null) return;
+
+        // Don't touch the source while an attack/death one-shot is still playing,
+        // otherwise we'd Stop() it mid-sound.
+        if (Time.time < oneShotEndTime) return;
+
+        if (isMovingThisFrame)
+        {
+            // If the walking loop isn't active, play it
+            if (!audioSource.isPlaying)
+            {
+                // Re-apply volume in case it was dynamically adjusted during runtime
+                audioSource.volume = walkVolume; 
+                audioSource.Play(); 
+            }
+        }
+        else
+        {
+            // If it stopped moving, cut off the sound loop
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
     }
 
     private void FindClosestTarget()
@@ -192,8 +316,7 @@ public class BasicMonster : MonoBehaviour, IMonster
             {
                 // Clear any pending Walk trigger so it can't immediately pull us
                 // back out of the Attack state before the attack clip plays.
-                animator.ResetTrigger(walkParameter);
-                animator.SetTrigger(attackTrigger);
+                PerformRandomAttack();
             }
 
             IDamageable damageable = target.GetComponent<IDamageable>();
@@ -235,10 +358,24 @@ public class BasicMonster : MonoBehaviour, IMonster
 
         Debug.Log($"{name} umiera...");
 
+        // --- AUDIO: Handle death sounds cleanly ---
+        // PlayOneShotSound stops the walk loop and shields the death grunt from
+        // HandleWalkAudio (which no longer runs once isDead, but stays consistent).
+        PlayOneShotSound(deathSound, deathVolume);
+
         if (controller != null)
         {
             controller.stepOffset = 0f;
             controller.enabled = false; // Wyłączamy go bezpiecznie, bo Update już go nie dotknie
+        }
+
+        // Remove the hitbox so the corpse can't be hit or block anything while the
+        // death animation plays. Disables every collider (CharacterController is
+        // already handled above) on the monster and its children.
+        foreach (Collider c in GetComponentsInChildren<Collider>(true))
+        {
+            if (c != controller)
+                c.enabled = false;
         }
 
         if (animator != null)
