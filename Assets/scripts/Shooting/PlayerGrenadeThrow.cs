@@ -12,13 +12,17 @@ public class PlayerGrenadeThrow : MonoBehaviour
     [Header("Weapon Visuals (Dodatkowe czÍúci, np. Pin)")]
     public GameObject[] extraGrenadeParts;
 
+    [Header("Weapon Audio")]
+    public AudioSource throwAudioSource;
+    public AudioClip throwSound;
+
     private WeaponManager weaponManager;
     private bool isReadyToThrow = true;
     private MeshRenderer mainBodyRenderer;
 
     void Start()
     {
-        weaponManager = WeaponManager.Instance; // Pobranie instancji managera
+        weaponManager = WeaponManager.Instance;
         mainBodyRenderer = GetComponent<MeshRenderer>();
     }
 
@@ -36,12 +40,9 @@ public class PlayerGrenadeThrow : MonoBehaviour
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            // SPRAWDZENIE CZY MAMY GRANATY (INDEKS 3)
             if (weaponManager != null && weaponManager.HasAmmo(3))
             {
                 StartCoroutine(ThrowSequence());
-
-                // ZUØYCIE GRANATU
                 weaponManager.UseAmmo(3);
             }
         }
@@ -50,6 +51,12 @@ public class PlayerGrenadeThrow : MonoBehaviour
     private System.Collections.IEnumerator ThrowSequence()
     {
         isReadyToThrow = false;
+
+        // ODTWARZANIE DèWI KU RZUTU
+        if (throwAudioSource != null && throwSound != null)
+        {
+            throwAudioSource.PlayOneShot(throwSound);
+        }
 
         if (flyingGrenadePrefab != null && throwPoint != null)
         {
@@ -67,7 +74,6 @@ public class PlayerGrenadeThrow : MonoBehaviour
 
         yield return new WaitForSeconds(regainDelay);
 
-        // POWR”T TYLKO JEåLI PO STRZALE NADAL MAMY JAKIå GRANAT W ZAPASIE
         if (weaponManager != null && weaponManager.HasAmmo(3))
         {
             if (mainBodyRenderer != null) mainBodyRenderer.enabled = true;

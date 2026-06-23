@@ -7,11 +7,13 @@ public class FlyingGrenade : MonoBehaviour
     public float explosionRadius = 5f;
     public GameObject explosionEffect;
 
+    [Header("Explosion Audio")]
+    public AudioClip explosionSound;
+
     private bool hasExploded = false;
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Ignoruj uderzenie w gracza przy wylocie
         if (collision.gameObject.CompareTag("Player")) return;
 
         Debug.Log("FIZYCZNE ZDERZENIE Z: " + collision.gameObject.name);
@@ -27,18 +29,22 @@ public class FlyingGrenade : MonoBehaviour
         hasExploded = true;
         Debug.Log(" FUNKCJA EXPLODE URUCHOMIONA!");
 
+        // ODTWARZANIE DŹWIĘKU EKSPLOZJI W PRZESTRZENI 3D
+        if (explosionSound != null)
+        {
+            AudioSource.PlayClipAtPoint(explosionSound, transform.position);
+        }
+
         if (explosionEffect != null)
         {
             GameObject fx = Instantiate(explosionEffect, transform.position, Quaternion.identity);
             Destroy(fx, 3f);
         }
 
-        // Szukamy wszystkich collider�w w strefie wybuchu
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (Collider hit in colliders)
         {
-            // 1. REAKCJA POTWORA
             if (hit.CompareTag("Monster"))
             {
                 IMonster monster = hit.GetComponent<IMonster>() ?? hit.GetComponentInParent<IMonster>();
@@ -50,17 +56,14 @@ public class FlyingGrenade : MonoBehaviour
                 continue;
             }
 
-            // 2. REAKCJA GRACZA (Naprawiona)
-            // Sprawdza czy trafiony obiekt (lub jego rodzic, je�li collider jest na dziecku) ma tag "Player"
             if (hit.CompareTag("Player") || (hit.transform.parent != null && hit.transform.parent.CompareTag("Player")))
             {
-                // Szukamy Twojego skryptu Player na trafionym obiekcie lub u rodzica
                 Player playerScript = hit.GetComponent<Player>() ?? hit.GetComponentInParent<Player>();
 
                 if (playerScript != null)
                 {
                     playerScript.TakeDamage(10f);
-                    Debug.Log(" GRANAT ZADA� OBRA�ENIA GRACZOWI! Aktualne HP: " + playerScript.health);
+                    Debug.Log(" GRANAT ZADAŁ OBRAŻENIA GRACZOWI! Aktualne HP: " + playerScript.health);
                 }
                 else
                 {

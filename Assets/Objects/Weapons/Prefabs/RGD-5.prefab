@@ -247,6 +247,7 @@ MonoBehaviour:
   damage: 50
   explosionRadius: 5
   explosionEffect: {fileID: 100004, guid: b46890100828db6429ff69c322b45893, type: 3}
+  explosionSound: {fileID: 8300000, guid: d89170f75cd023f4e9715a344b66b20c, type: 3}
 --- !u!1 &1793803600195958
 GameObject:
   m_ObjectHideFlags: 0

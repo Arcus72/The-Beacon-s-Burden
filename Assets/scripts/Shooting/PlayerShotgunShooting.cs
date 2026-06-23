@@ -22,13 +22,17 @@ public class PlayerShotgunShooting : MonoBehaviour
     public GameObject muzzleFlashPrefab;
     public GameObject bulletPrefab;
 
+    [Header("Weapon Audio")]
+    public AudioSource shotgunAudioSource;
+    public AudioClip shootSound;
+
     private Camera mainCamera;
-    private WeaponManager weaponManager; // Odnośnik do managera
+    private WeaponManager weaponManager;
 
     void Start()
     {
         mainCamera = Camera.main;
-        weaponManager = WeaponManager.Instance; // Pobranie instancji managera
+        weaponManager = WeaponManager.Instance;
         if (mainCamera == null)
         {
             Debug.LogError("BŁĄD: Nie znaleziono obiektu z tagiem 'MainCamera'!");
@@ -41,15 +45,11 @@ public class PlayerShotgunShooting : MonoBehaviour
         {
             if (Time.time >= nextFireTime)
             {
-                // SPRAWDZENIE AMUNICJI PRZED STRZAŁEM
                 if (weaponManager != null && weaponManager.HasAmmo(1))
                 {
                     Debug.Log("STRZAŁ Z SHOTGUNA: " + gameObject.name);
                     ShootShotgun();
-
-                    // ZUŻYCIE AMUNICJI
                     weaponManager.UseAmmo(1);
-
                     nextFireTime = Time.time + fireRate;
                 }
             }
@@ -59,6 +59,12 @@ public class PlayerShotgunShooting : MonoBehaviour
     void ShootShotgun()
     {
         if (mainCamera == null) return;
+
+        // ODTWARZANIE DŹWIĘKU WYSTRZAŁU SHOTGUNA
+        if (shotgunAudioSource != null && shootSound != null)
+        {
+            shotgunAudioSource.PlayOneShot(shootSound);
+        }
 
         if (gunAnimator != null)
         {
