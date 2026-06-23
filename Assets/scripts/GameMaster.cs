@@ -89,6 +89,18 @@ public class GameMaster : MonoBehaviour
         return currentLimit - cycleTimer;
     }
 
+    public void setDay()
+    {
+        isDay = true;
+        cycleTimer = 0f;
+    }
+
+    public void setNight()
+    {
+        isDay = false;
+        cycleTimer = 0f;
+    }
+
   public void SpawnMonster(GameObject monsterPrefab, BasicMonster monsterScript)
 {
     Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;

@@ -11,6 +11,10 @@ public class PlayerInventory : MonoBehaviour
     [Header("UI Reference")]
     public TextMeshProUGUI inventoryText;
 
+    [Header("Cheats")]
+    [Tooltip("When enabled, everything is free - items are never actually removed.")]
+    public bool freeMode = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -38,6 +42,9 @@ public class PlayerInventory : MonoBehaviour
 
   public bool TryRemoveItem(ItemData item, int amount)
 {
+    if (freeMode)
+        return true;
+
     if (items.ContainsKey(item))
     {
         int itemAmount = items[item];
@@ -61,6 +68,10 @@ public class PlayerInventory : MonoBehaviour
 
     return false;
 }
+
+    public void ToogleFreeShop(){
+        freeMode = !freeMode;
+    }
 
     public void UpdateInventoryUI()
     {
