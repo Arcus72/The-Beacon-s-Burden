@@ -18,22 +18,14 @@ public class PlayerGrenadeThrow : MonoBehaviour
 
     void Start()
     {
-        weaponManager = GetComponentInParent<WeaponManager>();
+        weaponManager = WeaponManager.Instance; // Pobranie instancji managera
         mainBodyRenderer = GetComponent<MeshRenderer>();
     }
 
-    // ==========================================
-    // NOWOŒÆ: ZABEZPIECZENIE PRZED ZMIAN¥ BRONI
-    // ==========================================
     void OnEnable()
     {
-        // Za ka¿dym razem, gdy gracz wyci¹gnie granat na nowo:
-        isReadyToThrow = true; // Odblokowujemy mo¿liwoœæ rzutu
-
-        // W³¹czamy z powrotem widocznoœæ cia³a
+        isReadyToThrow = true;
         if (mainBodyRenderer != null) mainBodyRenderer.enabled = true;
-
-        // W³¹czamy z powrotem widocznoœæ wszystkich dodatkowych czêœci (Pin itp.)
         SetExtraPartsActive(true);
     }
 
@@ -44,7 +36,14 @@ public class PlayerGrenadeThrow : MonoBehaviour
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            StartCoroutine(ThrowSequence());
+            // SPRAWDZENIE CZY MAMY GRANATY (INDEKS 3)
+            if (weaponManager != null && weaponManager.HasAmmo(3))
+            {
+                StartCoroutine(ThrowSequence());
+
+                // ZU¯YCIE GRANATU
+                weaponManager.UseAmmo(3);
+            }
         }
     }
 
@@ -63,18 +62,18 @@ public class PlayerGrenadeThrow : MonoBehaviour
             }
         }
 
-        // UKRYWANIE GRANATU
         if (mainBodyRenderer != null) mainBodyRenderer.enabled = false;
         SetExtraPartsActive(false);
 
-        // Czekamy na odnowienie
         yield return new WaitForSeconds(regainDelay);
 
-        // POWRÓT GRANATU DO RÊKI
-        if (mainBodyRenderer != null) mainBodyRenderer.enabled = true;
-        SetExtraPartsActive(true);
-
-        isReadyToThrow = true;
+        // POWRÓT TYLKO JEŒLI PO STRZALE NADAL MAMY JAKIŒ GRANAT W ZAPASIE
+        if (weaponManager != null && weaponManager.HasAmmo(3))
+        {
+            if (mainBodyRenderer != null) mainBodyRenderer.enabled = true;
+            SetExtraPartsActive(true);
+            isReadyToThrow = true;
+        }
     }
 
     private void SetExtraPartsActive(bool state)
