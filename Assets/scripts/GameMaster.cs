@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class GameMaster : MonoBehaviour
@@ -101,44 +102,55 @@ public class GameMaster : MonoBehaviour
         cycleTimer = 0f;
     }
 
-  public void SpawnMonster(GameObject monsterPrefab, BasicMonster monsterScript)
-{
-    Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
-    float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
-    Vector2 finalOffset = randomDirection * randomDistance;
-
-    Vector3 packCenter = new Vector3(
-        centerPoint.position.x + finalOffset.x,
-        spawnHeight,
-        centerPoint.position.z + finalOffset.y
-    );
-
-    int multiplier = UnityEngine.Random.Range(1, monsterScript.spawnMultiplayer + 1);
-
-    int columns = Mathf.CeilToInt(Mathf.Sqrt(multiplier));
-    float spacing = 2f; 
-
-    for (int i = 0; i < multiplier; i++)
+    public void SpawnMonster(GameObject monsterPrefab, BasicMonster monsterScript)
     {
-        int row = i / columns;
-        int col = i % columns;
+        Vector2 randomDirection = UnityEngine.Random.insideUnitCircle.normalized;
+        float randomDistance = UnityEngine.Random.Range(minDistance, maxDistance);
+        Vector2 finalOffset = randomDirection * randomDistance;
 
-        float xOffset = (col - (columns - 1) / 2f) * spacing;
-        float zOffset = (row - (columns - 1) / 2f) * spacing;
-
-        Vector3 spawnPosition = new Vector3(
-            packCenter.x + xOffset,
-            spawnHeight,
-            packCenter.z + zOffset
+        Vector3 packCenter = new Vector3(
+            centerPoint.position.x + finalOffset.x,
+            centerPoint.position.y,
+            centerPoint.position.z + finalOffset.y
         );
 
-        GameObject clone = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
-        clone.name = monsterPrefab.name;
-        clone.GetComponent<BasicMonster>().targets = targets;
+        int multiplier = UnityEngine.Random.Range(1, monsterScript.spawnMultiplayer + 1);
 
-        activeMonsters.Add(clone);
+        int columns = Mathf.CeilToInt(Mathf.Sqrt(multiplier));
+        float spacing = 2f;
+
+        for (int i = 0; i < multiplier; i++)
+        {
+            int row = i / columns;
+            int col = i % columns;
+
+            float xOffset = (col - (columns - 1) / 2f) * spacing;
+            float zOffset = (row - (columns - 1) / 2f) * spacing;
+
+            // Ustalamy punkt testowy wysoko w powietrzu (np. Y = 50), żeby promień leciał przez całą wysokość wyspy
+            Vector3 rawSpawnPosition = new Vector3(
+                packCenter.x + xOffset,
+                50f,
+                packCenter.z + zOffset
+            );
+
+            // Zwiększamy promień szukania (Extents) do 100 jednostek, żeby na pewno sięgnął gruntu z nieba
+            if (NavMesh.SamplePosition(rawSpawnPosition, out NavMeshHit hit, 100f, NavMesh.AllAreas))
+            {
+                // Znaleziono siatkę! Rodzimy potwora idealnie na ziemi
+                GameObject clone = Instantiate(monsterPrefab, hit.position, Quaternion.identity);
+                clone.name = monsterPrefab.name;
+                clone.GetComponent<BasicMonster>().targets = targets;
+
+                activeMonsters.Add(clone);
+            }
+            else
+            {
+                // Jeśli punkt wylosował się w głębokiej wodzie daleko za wyspą, gdzie nie ma NavMesh:
+                Debug.LogWarning($"Punkt spawnu [{rawSpawnPosition.x}, {rawSpawnPosition.z}] wypadł poza siatką NavMesh! Pomijam ten spawn.");
+            }
+        }
     }
-}
 
     public void ClearAllMonsters()
     {

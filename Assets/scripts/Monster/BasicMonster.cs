@@ -1,10 +1,8 @@
 using UnityEngine;
+using UnityEngine.AI; // WYMAGANE do obsługi NavMeshAgent
 using System.Collections;
 
-// Self-contained Tank monster. Does NOT inherit from BasicMonster - all of the
-// shared movement/attack/health logic is inlined here so the Tank lives in a
-// single file. It implements IMonster so weapons and the spawner still recognise it.
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(NavMeshAgent))] // Zmieniono z CharacterController na NavMeshAgent
 public class BasicMonster : MonoBehaviour, IMonster
 {
     public string name;
@@ -13,7 +11,6 @@ public class BasicMonster : MonoBehaviour, IMonster
     public float maxHealth = 100f;
     public float speed = 4.0f;
     public float rotationSpeed = 150f;
-    private float gravity = -9.81f;
 
     public GameObject[] targets = new GameObject[2];
     private GameObject closestTarget;
@@ -52,21 +49,17 @@ public class BasicMonster : MonoBehaviour, IMonster
     public int totalWalk = 2;
 
     private float targetSearchTimer = 0f;
-    private CharacterController controller;
-    private float verticalVelocity;
+
+    // Zmiana komponentu fizycznego na agenta AI
+    private NavMeshAgent agent;
 
     private Animator animator;
     private bool isDead = false;
     private bool isMovingThisFrame = false;
     private bool wasMoving = false;
 
-    // Cached optimization flags for animator parameters
     private bool hasAttackIndex;
     private bool hasWalkIndex;
-
-    // While a one-shot (attack/death) is playing we must not let the walk-audio
-    // manager call Stop() on the shared AudioSource, otherwise it cuts the
-    // one-shot off the same frame it starts. Holds the time the one-shot ends.
     private float oneShotEndTime;
 
     // ---- IMonster ----
@@ -76,7 +69,16 @@ public class BasicMonster : MonoBehaviour, IMonster
 
     private void Start()
     {
-        controller = GetComponent<CharacterController>();
+        // Pobieramy i konfigurujemy NavMeshAgent
+        agent = GetComponent<NavMeshAgent>();
+        if (agent != null)
+        {
+            agent.speed = speed;
+            agent.angularSpeed = rotationSpeed;
+            // Zasięg ataku definiuje, jak blisko celu agent ma się zatrzymać
+            agent.stoppingDistance = attackRange - 0.2f;
+        }
+
         _currentHealth = maxHealth;
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
@@ -88,26 +90,18 @@ public class BasicMonster : MonoBehaviour, IMonster
         }
         else
         {
-            // Cache animator parameter existence to avoid garbage collection/CPU overhead in Update
             hasAttackIndex = HasAnimatorParameter(animator, "AttackIndex", AnimatorControllerParameterType.Int);
             hasWalkIndex = HasAnimatorParameter(animator, "WalkIndex", AnimatorControllerParameterType.Int);
         }
 
-        if (controller != null)
+        // Ignorowanie kolizji z własnymi colliderami potomnymi
+        foreach (Collider c in GetComponentsInChildren<Collider>(true))
         {
-            foreach (Collider c in GetComponentsInChildren<Collider>(true))
-            {
-                if (c != controller)
-                    Physics.IgnoreCollision(controller, c);
-            }
+            // Ponieważ nie ma CharacterControllera, ignorujemy kolizje między innymi colliderami na potworze
+            if (c != GetComponent<Collider>())
+                Physics.IgnoreCollision(GetComponent<Collider>(), c);
         }
 
-        // 3D spatial settings (Spatial Blend, Volume Rolloff, Min/Max Distance)
-        // are configured on the AudioSource component in the Inspector.
-        // Set Volume Rolloff to "Linear Rolloff" so the sound is fully silent
-        // past Max Distance (Logarithmic never reaches zero).
-
-        // Initialize the AudioSource with the walking sound clip, volume, and loop configurations
         if (audioSource != null && walkSound != null)
         {
             audioSource.clip = walkSound;
@@ -122,10 +116,7 @@ public class BasicMonster : MonoBehaviour, IMonster
     {
         foreach (AnimatorControllerParameter param in anim.parameters)
         {
-            if (param.name == paramName && param.type == type)
-            {
-                return true;
-            }
+            if (param.name == paramName && param.type == type) return true;
         }
         return false;
     }
@@ -134,24 +125,16 @@ public class BasicMonster : MonoBehaviour, IMonster
     {
         int randomIndex = Random.Range(0, totalAttacks);
         animator.ResetTrigger(walkParameter);
-        
-        if (hasAttackIndex)
-        {
-            animator.SetInteger("AttackIndex", randomIndex);
-        }
-        
-        animator.SetTrigger(attackTrigger);
 
+        if (hasAttackIndex) animator.SetInteger("AttackIndex", randomIndex);
+
+        animator.SetTrigger(attackTrigger);
         PlayOneShotSound(attackSound, attackVolume);
     }
 
-    // Plays a one-shot (attack/death) on the shared AudioSource and records when
-    // it finishes so HandleWalkAudio() leaves the source alone until then.
     private void PlayOneShotSound(AudioClip clip, float volume)
     {
         if (audioSource == null || clip == null) return;
-
-        // Stop the looping walk sound so it doesn't play under the one-shot.
         if (audioSource.isPlaying) audioSource.Stop();
 
         audioSource.PlayOneShot(clip, volume);
@@ -161,10 +144,7 @@ public class BasicMonster : MonoBehaviour, IMonster
     void SelectWalkStyle()
     {
         int randomIndex = Random.Range(0, totalWalk);
-        if (hasWalkIndex)
-        {
-            animator.SetInteger("WalkIndex", randomIndex);
-        }
+        if (hasWalkIndex) animator.SetInteger("WalkIndex", randomIndex);
     }
 
     private void Update()
@@ -177,10 +157,7 @@ public class BasicMonster : MonoBehaviour, IMonster
             return;
         }
 
-        if (controller == null || !controller.enabled)
-        {
-            return;
-        }
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh) return;
 
         isMovingThisFrame = false;
 
@@ -202,10 +179,13 @@ public class BasicMonster : MonoBehaviour, IMonster
 
             if (distanceToSurface <= attackRange)
             {
+                // Jesteśmy blisko celu -> zatrzymaj się i atakuj
+                agent.ResetPath();
                 AttackTarget(closestTarget);
             }
             else
             {
+                // Jesteśmy daleko -> inteligentnie nawiguj omijając przeszkody
                 MoveTowardsPoint(targetPoint);
 
                 if (attackTimer < attackSpeed)
@@ -216,43 +196,30 @@ public class BasicMonster : MonoBehaviour, IMonster
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
 
-        // Walk is a trigger: fire it only on the rising edge (when movement
-        // starts), not every frame, otherwise the Any State -> Walk transition
-        // restarts the clip from frame 0 each frame and the animation stutters.
+        // Kontrola animacji chodu
         if (animator != null && isMovingThisFrame && !wasMoving)
             animator.SetTrigger(walkParameter);
 
         wasMoving = isMovingThisFrame;
-
-        // Manage walking sound loop based on whether the monster moved this frame
         HandleWalkAudio();
     }
 
     private void HandleWalkAudio()
     {
         if (audioSource == null || walkSound == null) return;
-
-        // Don't touch the source while an attack/death one-shot is still playing,
-        // otherwise we'd Stop() it mid-sound.
         if (Time.time < oneShotEndTime) return;
 
         if (isMovingThisFrame)
         {
-            // If the walking loop isn't active, play it
             if (!audioSource.isPlaying)
             {
-                // Re-apply volume in case it was dynamically adjusted during runtime
-                audioSource.volume = walkVolume; 
-                audioSource.Play(); 
+                audioSource.volume = walkVolume;
+                audioSource.Play();
             }
         }
         else
         {
-            // If it stopped moving, cut off the sound loop
-            if (audioSource.isPlaying)
-            {
-                audioSource.Stop();
-            }
+            if (audioSource.isPlaying) audioSource.Stop();
         }
     }
 
@@ -282,26 +249,17 @@ public class BasicMonster : MonoBehaviour, IMonster
 
     private void MoveTowardsPoint(Vector3 goal)
     {
-        if (isDead || controller == null || !controller.enabled) return;
+        if (isDead || agent == null || !agent.enabled) return;
 
-        Vector3 direction = (goal - transform.position).normalized;
-        direction.y = 0;
+        // Zamiast matematycznego przesuwania, mówimy agentowi gdzie ma dotrzeć.
+        // Komponent sam ominie skały widoczne na upieczonym NavMesh.
+        agent.SetDestination(goal);
 
-        if (controller.isGrounded)
-            verticalVelocity = -0.5f;
-        else
-            verticalVelocity += gravity * Time.deltaTime;
-
-        Vector3 moveVector = (direction * speed) + (Vector3.up * verticalVelocity);
-        controller.Move(moveVector * Time.deltaTime);
-
-        if (direction != Vector3.zero)
+        // Sprawdzamy czy agent faktycznie się porusza, żeby kontrolować animację/dźwięk chodu
+        if (agent.velocity.sqrMagnitude > 0.1f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            isMovingThisFrame = true;
         }
-
-        isMovingThisFrame = true;
     }
 
     private void AttackTarget(GameObject target)
@@ -312,12 +270,7 @@ public class BasicMonster : MonoBehaviour, IMonster
 
         if (attackTimer >= attackSpeed)
         {
-            if (animator != null)
-            {
-                // Clear any pending Walk trigger so it can't immediately pull us
-                // back out of the Attack state before the attack clip plays.
-                PerformRandomAttack();
-            }
+            if (animator != null) PerformRandomAttack();
 
             IDamageable damageable = target.GetComponent<IDamageable>();
             if (damageable != null)
@@ -347,8 +300,6 @@ public class BasicMonster : MonoBehaviour, IMonster
 
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
-
-        Debug.Log(name + " został uleczony! HP: " + _currentHealth);
     }
 
     public void Die()
@@ -356,26 +307,19 @@ public class BasicMonster : MonoBehaviour, IMonster
         if (isDead) return;
         isDead = true;
 
-        Debug.Log($"{name} umiera...");
-
-        // --- AUDIO: Handle death sounds cleanly ---
-        // PlayOneShotSound stops the walk loop and shields the death grunt from
-        // HandleWalkAudio (which no longer runs once isDead, but stays consistent).
         PlayOneShotSound(deathSound, deathVolume);
 
-        if (controller != null)
+        // Bezpieczne wyłączenie agenta AI po śmierci
+        if (agent != null)
         {
-            controller.stepOffset = 0f;
-            controller.enabled = false; // Wyłączamy go bezpiecznie, bo Update już go nie dotknie
+            agent.ResetPath();
+            agent.enabled = false;
         }
 
-        // Remove the hitbox so the corpse can't be hit or block anything while the
-        // death animation plays. Disables every collider (CharacterController is
-        // already handled above) on the monster and its children.
+        // Wyłączenie kolizji zwłok
         foreach (Collider c in GetComponentsInChildren<Collider>(true))
         {
-            if (c != controller)
-                c.enabled = false;
+            c.enabled = false;
         }
 
         if (animator != null)

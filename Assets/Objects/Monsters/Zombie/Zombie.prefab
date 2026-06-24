@@ -1795,6 +1795,7 @@ GameObject:
   - component: {fileID: 7894270151196702634}
   - component: {fileID: 581345546180050915}
   - component: {fileID: 7043472908872893301}
+  - component: {fileID: 85260139960949210}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Monster
@@ -1925,6 +1926,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.49566886, y: 1.744719, z: 0.42193407}
   m_Center: {x: -0.018752106, y: 0.87740064, z: -0.0053780084}
+--- !u!195 &85260139960949210
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7440214316909343961}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &7468511984979865423
 GameObject:
   m_ObjectHideFlags: 0
