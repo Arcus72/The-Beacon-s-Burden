@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour, IDamageable
 {
+    public static Player Instance;
     public PlayerCamera playerCamera;
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
@@ -24,10 +25,10 @@ public class Player : MonoBehaviour, IDamageable
 
     [Header("Footsteps Settings")]
     public AudioSource footstepsAudioSource; // Przypisz komponent Audio Source w Inspektorze
-    public AudioClip[] footstepsClips;        // Wrzuæ tutaj pliki dŸwiêkowe swoich kroków
-    public float walkStepRate = 0.5f;         // Odstêp miêdzy krokami przy chodzeniu (w sekundach)
-    public float runStepRate = 0.3f;          // Odstêp miêdzy krokami przy bieganiu (szybciej!)
-    public float crouchStepRate = 0.7f;        // Odstêp miêdzy krokami przy skradaniu (wolniej)
+    public AudioClip[] footstepsClips;        // Wrzuï¿½ tutaj pliki dï¿½wiï¿½kowe swoich krokï¿½w
+    public float walkStepRate = 0.5f;         // Odstï¿½p miï¿½dzy krokami przy chodzeniu (w sekundach)
+    public float runStepRate = 0.3f;          // Odstï¿½p miï¿½dzy krokami przy bieganiu (szybciej!)
+    public float crouchStepRate = 0.7f;        // Odstï¿½p miï¿½dzy krokami przy skradaniu (wolniej)
     private float stepTimer = 0f;
 
     private Vector3 moveDirection = Vector3.zero;
@@ -35,6 +36,11 @@ public class Player : MonoBehaviour, IDamageable
     private CharacterController characterController;
 
     private bool canMove = true;
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -61,6 +67,13 @@ public class Player : MonoBehaviour, IDamageable
         }
     }
 
+    public void Restart(){
+        gameObject.SetActive(true);
+        shield = 50;
+        health = 100;
+    }
+
+
     public void TakeDamage(float amount)
     {
         if (playerCamera != null)
@@ -83,7 +96,7 @@ public class Player : MonoBehaviour, IDamageable
 
     void die()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
         GameMaster.Instance.EndGame();
     }
 
@@ -150,21 +163,21 @@ public class Player : MonoBehaviour, IDamageable
             transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed, 0);
         }
 
-        // Obs³uga kroków
+        // Obsï¿½uga krokï¿½w
         HandleFootsteps(isRunning, isCrouching);
     }
 
     void HandleFootsteps(bool isRunning, bool isCrouching)
     {
-        // Sprawdzamy czy gracz dotyka ziemi i faktycznie siê przemieszcza
-        // U¿ywamy velocity z uwzglêdnieniem tylko osi X i Z, ¿eby skakanie lub spadanie nie liczy³o siê jako chód
+        // Sprawdzamy czy gracz dotyka ziemi i faktycznie siï¿½ przemieszcza
+        // Uï¿½ywamy velocity z uwzglï¿½dnieniem tylko osi X i Z, ï¿½eby skakanie lub spadanie nie liczyï¿½o siï¿½ jako chï¿½d
         Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0, characterController.velocity.z);
 
         if (characterController.isGrounded && horizontalVelocity.magnitude > 0.1f && canMove)
         {
             stepTimer += Time.deltaTime;
 
-            // Dynamicznie dobieramy tempo kroków do stanu gracza
+            // Dynamicznie dobieramy tempo krokï¿½w do stanu gracza
             float currentStepRate = walkStepRate;
             if (isCrouching) currentStepRate = crouchStepRate;
             else if (isRunning) currentStepRate = runStepRate;
@@ -173,7 +186,7 @@ public class Player : MonoBehaviour, IDamageable
             {
                 if (footstepsClips.Length > 0 && footstepsAudioSource != null)
                 {
-                    // Losowanie dŸwiêku kroku z tablicy
+                    // Losowanie dï¿½wiï¿½ku kroku z tablicy
                     int randomIndex = Random.Range(0, footstepsClips.Length);
                     footstepsAudioSource.PlayOneShot(footstepsClips[randomIndex]);
                 }
@@ -182,7 +195,7 @@ public class Player : MonoBehaviour, IDamageable
         }
         else
         {
-            // Reset do wartoœci maksymalnej, aby po zatrzymaniu i ponownym ruszeniu krok zagra³ natychmiast
+            // Reset do wartoï¿½ci maksymalnej, aby po zatrzymaniu i ponownym ruszeniu krok zagraï¿½ natychmiast
             stepTimer = walkStepRate;
         }
     }

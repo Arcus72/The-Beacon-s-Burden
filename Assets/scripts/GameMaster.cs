@@ -46,6 +46,7 @@ public class GameMaster : MonoBehaviour
     public void EndGame()
     {
         isSpawnMonsters = false;
+        HudsMaster.Instance.showDeathScreen();
         ClearAllMonsters();
     }
 

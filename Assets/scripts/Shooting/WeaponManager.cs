@@ -6,7 +6,7 @@ public class WeaponManager : MonoBehaviour
     [Header("Lista Broni (w kolejnosci 1, 2, 3, 4)")]
     public GameObject[] weapons;
 
-    // Zamiast tablicy bool, stan odblokowania zale¿y teraz od iloœci amunicji!
+    // Zamiast tablicy bool, stan odblokowania zaleï¿½y teraz od iloï¿½ci amunicji!
     private int[] weaponAmmo;
 
     private int currentWeaponIndex = 0;
@@ -25,7 +25,7 @@ public class WeaponManager : MonoBehaviour
     {
         weaponAmmo = new int[weapons.Length];
 
-        // Pistolet (indeks 0) na starcie ma nieskoñczonoœæ, reszta ma 0 naboi
+        // Pistolet (indeks 0) na starcie ma nieskoï¿½czonoï¿½ï¿½, reszta ma 0 naboi
         weaponAmmo[0] = 9999;
         for (int i = 1; i < weapons.Length; i++)
             weaponAmmo[i] = 0;
@@ -33,38 +33,38 @@ public class WeaponManager : MonoBehaviour
         SelectWeapon(0);
     }
 
-    // Metoda wywo³ywana przez sklep
+    // Metoda wywoï¿½ywana przez sklep
     public void AddAmmo(int weaponIndex, int amount)
     {
         if (weaponIndex < 0 || weaponIndex >= weapons.Length) return;
 
-        // Jeœli gracz nie mia³ amunicji, zakup odblokowuje broñ
+        // Jeï¿½li gracz nie miaï¿½ amunicji, zakup odblokowuje broï¿½
         weaponAmmo[weaponIndex] += amount;
 
-        // Automatycznie wyci¹gamy nowo kupion¹ broñ, dla wygody gracza
+        // Automatycznie wyciï¿½gamy nowo kupionï¿½ broï¿½, dla wygody gracza
         SelectWeapon(weaponIndex);
     }
 
-    // Metoda zu¿ywaj¹ca amunicjê przy strzale
+    // Metoda zuï¿½ywajï¿½ca amunicjï¿½ przy strzale
     public void UseAmmo(int weaponIndex)
     {
-        if (weaponIndex == 0) return; // Pistolet ma nieskoñczonoœæ
+        if (weaponIndex == 0) return; // Pistolet ma nieskoï¿½czonoï¿½ï¿½
 
         if (weaponIndex >= 0 && weaponIndex < weaponAmmo.Length)
         {
             weaponAmmo[weaponIndex]--;
-            Debug.Log($"Broñ {weaponIndex} pozosta³a amunicja: {weaponAmmo[weaponIndex]}");
+            Debug.Log($"Broï¿½ {weaponIndex} pozostaï¿½a amunicja: {weaponAmmo[weaponIndex]}");
 
             if (weaponAmmo[weaponIndex] <= 0)
             {
                 weaponAmmo[weaponIndex] = 0;
-                Debug.Log("Koniec amunicji! Powrót do pistoletu.");
-                SelectWeapon(0); // Wymuszony powrót do pistoletu
+                Debug.Log("Koniec amunicji! Powrï¿½t do pistoletu.");
+                SelectWeapon(0); // Wymuszony powrï¿½t do pistoletu
             }
         }
     }
 
-    // Metoda sprawdzaj¹ca, czy broñ posiada naboje
+    // Metoda sprawdzajï¿½ca, czy broï¿½ posiada naboje
     public bool HasAmmo(int weaponIndex)
     {
         if (weaponIndex < 0 || weaponIndex >= weaponAmmo.Length) return false;
@@ -76,7 +76,7 @@ public class WeaponManager : MonoBehaviour
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        // Wykrywanie klikniêcia klawiszy 1, 2, 3, 4 – z warunkiem posiadania amunicji
+        // Wykrywanie klikniï¿½cia klawiszy 1, 2, 3, 4 ï¿½ z warunkiem posiadania amunicji
         if (keyboard.digit1Key.wasPressedThisFrame) { TrySelectWeapon(0); }
         if (keyboard.digit2Key.wasPressedThisFrame) { TrySelectWeapon(1); }
         if (keyboard.digit3Key.wasPressedThisFrame) { TrySelectWeapon(2); }
@@ -91,7 +91,7 @@ public class WeaponManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Nie mo¿esz wybraæ broni {index} – brak amunicji!");
+            Debug.Log($"Nie moï¿½esz wybraï¿½ broni {index} ï¿½ brak amunicji!");
         }
     }
 
@@ -127,5 +127,17 @@ public class WeaponManager : MonoBehaviour
             return weaponAmmo[weaponIndex];
         }
         return 0;
+    }
+
+
+        public void Restart()
+    {
+        weaponAmmo = new int[weapons.Length];
+        weaponAmmo[0] = 9999;
+        for (int i = 1; i < weapons.Length; i++)
+            weaponAmmo[i] = 0;
+
+        currentWeaponIndex = 0;
+        SelectWeapon(0);
     }
 }

@@ -28,6 +28,10 @@ public class PlayerInventory : MonoBehaviour
         UpdateInventoryUI(); 
     }
 
+    public void RestartInventory(){
+        items = new Dictionary<ItemData, int>();
+    }
+
     public void AddItem(ItemData item, int amount = 1)
     {
         if (items.ContainsKey(item))
