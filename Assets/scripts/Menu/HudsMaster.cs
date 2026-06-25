@@ -4,13 +4,12 @@ public class HudsMaster : MonoBehaviour
 {
     public static HudsMaster Instance;
 
-
     [Header("Cameras")]
-    public GameObject menuCameraRig;   
-    public GameObject gameplayCamera;  
+    public GameObject menuCameraRig;
+    public GameObject gameplayCamera;
 
     [Header("UI Canvas")]
-    public GameObject menuCanvas;      
+    public GameObject menuCanvas;
     public GameObject playerCanvas;
     public GameObject deathCanvas;
 
@@ -21,7 +20,7 @@ public class HudsMaster : MonoBehaviour
 
     void Start()
     {
-       // Force the cursor to be visible and free to move when the menu loads
+        // Force the cursor to be visible and free to move when the menu loads
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -33,11 +32,7 @@ public class HudsMaster : MonoBehaviour
         // Swiching Camera
         if (menuCanvas != null) menuCanvas.SetActive(true);
         if (playerCanvas != null) playerCanvas.SetActive(false);
-        
-
     }
-
-
 
     void Update()
     {
@@ -66,16 +61,30 @@ public class HudsMaster : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
+        // Zerowanie licznika czasu w GameMasterze
+        if (GameMaster.Instance != null)
+        {
+            GameMaster.Instance.currentDay = 1;
+            GameMaster.Instance.setNight();
+            GameMaster.Instance.ClearAllMonsters();
+        }
+
+        // Wymuszenie natychmiastowego pokazania napisu NIGHT 1 na œrodku ekranu przez UIManager
+        UIManager uiManager = FindObjectOfType<UIManager>();
+        if (uiManager != null)
+        {
+            uiManager.StartGameResetNotification();
+        }
+
         // Setting game
-        GameMaster.Instance.setNight();
-        GameMaster.Instance.ClearAllMonsters();
         Player.Instance.Restart();
         LighthouseScript.Instance.Restart();
         PlayerInventory.Instance.RestartInventory();
         WeaponManager.Instance.Restart();
     }
 
-    public void showDeathScreen(){
+    public void showDeathScreen()
+    {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 

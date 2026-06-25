@@ -82,11 +82,11 @@ public class PlayerInventory : MonoBehaviour
         if (inventoryText == null) return; 
         if (items.Count == 0)
         {
-            inventoryText.text = "Ekwipunek: Pusty";
+            inventoryText.text = "Inventory: Empty";
             return;
         }
 
-        string newText = "Zasoby:\n";
+        string newText = "Inventory:\n";
 
         foreach (KeyValuePair<ItemData, int> pair in items)
         {

@@ -1,8 +1,8 @@
 using UnityEngine;
-using UnityEngine.AI; // WYMAGANE do obsługi NavMeshAgent
+using UnityEngine.AI;
 using System.Collections;
 
-[RequireComponent(typeof(NavMeshAgent))] // Zmieniono z CharacterController na NavMeshAgent
+[RequireComponent(typeof(NavMeshAgent))]
 public class BasicMonster : MonoBehaviour, IMonster
 {
     public string name;
@@ -30,7 +30,6 @@ public class BasicMonster : MonoBehaviour, IMonster
     public int spawnMultiplayer = 1;
 
     [Header("Sound Settings (Single AudioSource Setup)")]
-    [Tooltip("The ONLY Audio Source component on this monster (Set it to 3D!)")]
     public AudioSource audioSource;
     public AudioClip walkSound;
     public AudioClip attackSound;
@@ -49,10 +48,7 @@ public class BasicMonster : MonoBehaviour, IMonster
     public int totalWalk = 2;
 
     private float targetSearchTimer = 0f;
-
-    // Zmiana komponentu fizycznego na agenta AI
     private NavMeshAgent agent;
-
     private Animator animator;
     private bool isDead = false;
     private bool isMovingThisFrame = false;
@@ -62,24 +58,45 @@ public class BasicMonster : MonoBehaviour, IMonster
     private bool hasWalkIndex;
     private float oneShotEndTime;
 
-    // ---- IMonster ----
     public GameObject[] Targets { get => targets; set => targets = value; }
     public int SpawnMultiplier => spawnMultiplayer;
     public float SpawningChance => spawningChance;
 
+    // Funkcja wywoływana przez GameMaster zaraz po Instantiate, dopasowująca potwora do trudności dnia
+    public void ApplyDifficultyScale(int day)
+    {
+        if (day <= 1) return;
+
+        // Skalowanie HP: +12% do maksymalnego zdrowia za każdy przeżyty dzień
+        maxHealth = maxHealth + (maxHealth * (day - 1) * 0.12f);
+        _currentHealth = maxHealth;
+
+        // Skalowanie DMG: +8% do zadawanych obrażeń za każdy dzień
+        attackDamage = attackDamage + (attackDamage * (day - 1) * 0.08f);
+
+        // Skalowanie prędkości: Delikatny bonus (+3% na dzień), żeby nie zepsuć NavMesha i animacji chodu
+        speed = speed + (speed * (day - 1) * 0.03f);
+
+        // Aktualizacja parametrów w agencie, o ile został już pobrany
+        if (agent != null)
+        {
+            agent.speed = speed;
+        }
+    }
+
     private void Start()
     {
-        // Pobieramy i konfigurujemy NavMeshAgent
         agent = GetComponent<NavMeshAgent>();
         if (agent != null)
         {
             agent.speed = speed;
             agent.angularSpeed = rotationSpeed;
-            // Zasięg ataku definiuje, jak blisko celu agent ma się zatrzymać
             agent.stoppingDistance = attackRange - 0.2f;
         }
 
+        // Jeśli statystyki zmieniły się w ApplyDifficultyScale, ustawiamy właściwe zdrowie na start
         _currentHealth = maxHealth;
+
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
 
@@ -94,10 +111,8 @@ public class BasicMonster : MonoBehaviour, IMonster
             hasWalkIndex = HasAnimatorParameter(animator, "WalkIndex", AnimatorControllerParameterType.Int);
         }
 
-        // Ignorowanie kolizji z własnymi colliderami potomnymi
         foreach (Collider c in GetComponentsInChildren<Collider>(true))
         {
-            // Ponieważ nie ma CharacterControllera, ignorujemy kolizje między innymi colliderami na potworze
             if (c != GetComponent<Collider>())
                 Physics.IgnoreCollision(GetComponent<Collider>(), c);
         }
@@ -125,9 +140,7 @@ public class BasicMonster : MonoBehaviour, IMonster
     {
         int randomIndex = Random.Range(0, totalAttacks);
         animator.ResetTrigger(walkParameter);
-
         if (hasAttackIndex) animator.SetInteger("AttackIndex", randomIndex);
-
         animator.SetTrigger(attackTrigger);
         PlayOneShotSound(attackSound, attackVolume);
     }
@@ -136,7 +149,6 @@ public class BasicMonster : MonoBehaviour, IMonster
     {
         if (audioSource == null || clip == null) return;
         if (audioSource.isPlaying) audioSource.Stop();
-
         audioSource.PlayOneShot(clip, volume);
         oneShotEndTime = Time.time + clip.length;
     }
@@ -179,15 +191,12 @@ public class BasicMonster : MonoBehaviour, IMonster
 
             if (distanceToSurface <= attackRange)
             {
-                // Jesteśmy blisko celu -> zatrzymaj się i atakuj
                 agent.ResetPath();
                 AttackTarget(closestTarget);
             }
             else
             {
-                // Jesteśmy daleko -> inteligentnie nawiguj omijając przeszkody
                 MoveTowardsPoint(targetPoint);
-
                 if (attackTimer < attackSpeed)
                     attackTimer += Time.deltaTime;
             }
@@ -196,7 +205,6 @@ public class BasicMonster : MonoBehaviour, IMonster
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
 
-        // Kontrola animacji chodu
         if (animator != null && isMovingThisFrame && !wasMoving)
             animator.SetTrigger(walkParameter);
 
@@ -250,12 +258,7 @@ public class BasicMonster : MonoBehaviour, IMonster
     private void MoveTowardsPoint(Vector3 goal)
     {
         if (isDead || agent == null || !agent.enabled) return;
-
-        // Zamiast matematycznego przesuwania, mówimy agentowi gdzie ma dotrzeć.
-        // Komponent sam ominie skały widoczne na upieczonym NavMesh.
         agent.SetDestination(goal);
-
-        // Sprawdzamy czy agent faktycznie się porusza, żeby kontrolować animację/dźwięk chodu
         if (agent.velocity.sqrMagnitude > 0.1f)
         {
             isMovingThisFrame = true;
@@ -265,7 +268,6 @@ public class BasicMonster : MonoBehaviour, IMonster
     private void AttackTarget(GameObject target)
     {
         if (isDead) return;
-
         attackTimer += Time.deltaTime;
 
         if (attackTimer >= attackSpeed)
@@ -284,20 +286,15 @@ public class BasicMonster : MonoBehaviour, IMonster
     {
         _currentHealth -= amount;
         if (_currentHealth < 0) _currentHealth = 0;
-
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
-
-        Debug.Log("Potwór dostał obrażenia! HP: " + _currentHealth);
     }
 
     public void Heal(float amount)
     {
         if (_currentHealth <= 0) return;
-
         _currentHealth += amount;
         if (_currentHealth > maxHealth) _currentHealth = maxHealth;
-
         if (_healthbar)
             _healthbar.UpdateHealtBar(maxHealth, _currentHealth);
     }
@@ -309,14 +306,12 @@ public class BasicMonster : MonoBehaviour, IMonster
 
         PlayOneShotSound(deathSound, deathVolume);
 
-        // Bezpieczne wyłączenie agenta AI po śmierci
         if (agent != null)
         {
             agent.ResetPath();
             agent.enabled = false;
         }
 
-        // Wyłączenie kolizji zwłok
         foreach (Collider c in GetComponentsInChildren<Collider>(true))
         {
             c.enabled = false;
