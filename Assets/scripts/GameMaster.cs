@@ -38,6 +38,9 @@ public class GameMaster : MonoBehaviour
     private float spawnTimer = 0f;
     private List<GameObject> activeMonsters = new List<GameObject>();
 
+    [Header("ItemShop")]
+    public GameObject ItemShop;
+
     void Awake()
     {
         Instance = this;
@@ -95,12 +98,14 @@ public class GameMaster : MonoBehaviour
     {
         isDay = true;
         cycleTimer = 0f;
+        ItemShop.SetActive(true);
     }
 
     public void setNight()
     {
         isDay = false;
         cycleTimer = 0f;
+        ItemShop.SetActive(false);
     }
 
     public void SpawnMonster(GameObject monsterPrefab, BasicMonster monsterScript)

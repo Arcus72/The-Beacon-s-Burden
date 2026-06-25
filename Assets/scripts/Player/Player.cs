@@ -23,6 +23,10 @@ public class Player : MonoBehaviour, IDamageable
     public float health = 100f;
     public float shield = 50f;
 
+    [Header("Sea Level")]
+    public float sealevel = 0f;
+    private float underwaterTimer = 0f;
+
     [Header("Footsteps Settings")]
     public AudioSource footstepsAudioSource; // Przypisz komponent Audio Source w Inspektorze
     public AudioClip[] footstepsClips;        // Wrzu� tutaj pliki d�wi�kowe swoich krok�w
@@ -34,6 +38,7 @@ public class Player : MonoBehaviour, IDamageable
     private Vector3 moveDirection = Vector3.zero;
     private float rotationX = 0;
     private CharacterController characterController;
+    private Vector3 spawnPoint;
 
     private bool canMove = true;
 
@@ -45,6 +50,7 @@ public class Player : MonoBehaviour, IDamageable
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        spawnPoint = transform.position;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -71,6 +77,10 @@ public class Player : MonoBehaviour, IDamageable
         gameObject.SetActive(true);
         shield = 50;
         health = 100;
+        underwaterTimer = 0f;
+        characterController.enabled = false;
+        transform.position = spawnPoint;
+        characterController.enabled = true;
     }
 
 
@@ -97,9 +107,11 @@ public class Player : MonoBehaviour, IDamageable
     void die()
     {
         gameObject.SetActive(false);
+        gameObject.SetActive(false);
         GameMaster.Instance.EndGame();
     }
 
+  
     void Update()
     {
         // Get input data
@@ -163,21 +175,41 @@ public class Player : MonoBehaviour, IDamageable
             transform.rotation *= Quaternion.Euler(0, mouseDelta.x * lookSpeed, 0);
         }
 
-        // Obs�uga krok�w
         HandleFootsteps(isRunning, isCrouching);
+        HandleUnderwater();
+    }
+
+    void HandleUnderwater()
+    {
+        if (transform.position.y < sealevel)
+        {
+            underwaterTimer += Time.deltaTime;
+
+            if (underwaterTimer >= Mathf.Floor(underwaterTimer) && Time.deltaTime > 0)
+            {
+                float elapsed = underwaterTimer;
+                float prev = elapsed - Time.deltaTime;
+                if (Mathf.FloorToInt(elapsed) > Mathf.FloorToInt(prev))
+                    playerCamera.Shake(0.8f, 0.2f);
+            }
+
+            if (underwaterTimer >= 3f)
+                die();
+        }
+        else
+        {
+            underwaterTimer = 0f;
+        }
     }
 
     void HandleFootsteps(bool isRunning, bool isCrouching)
     {
-        // Sprawdzamy czy gracz dotyka ziemi i faktycznie si� przemieszcza
-        // U�ywamy velocity z uwzgl�dnieniem tylko osi X i Z, �eby skakanie lub spadanie nie liczy�o si� jako ch�d
         Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0, characterController.velocity.z);
 
         if (characterController.isGrounded && horizontalVelocity.magnitude > 0.1f && canMove)
         {
             stepTimer += Time.deltaTime;
 
-            // Dynamicznie dobieramy tempo krok�w do stanu gracza
             float currentStepRate = walkStepRate;
             if (isCrouching) currentStepRate = crouchStepRate;
             else if (isRunning) currentStepRate = runStepRate;
@@ -186,16 +218,14 @@ public class Player : MonoBehaviour, IDamageable
             {
                 if (footstepsClips.Length > 0 && footstepsAudioSource != null)
                 {
-                    // Losowanie d�wi�ku kroku z tablicy
                     int randomIndex = Random.Range(0, footstepsClips.Length);
                     footstepsAudioSource.PlayOneShot(footstepsClips[randomIndex]);
                 }
-                stepTimer = 0f; // Reset timera
+                stepTimer = 0f; 
             }
         }
         else
         {
-            // Reset do warto�ci maksymalnej, aby po zatrzymaniu i ponownym ruszeniu krok zagra� natychmiast
             stepTimer = walkStepRate;
         }
     }
