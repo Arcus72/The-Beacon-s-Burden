@@ -533,7 +533,7 @@ Transform:
   m_GameObject: {fileID: 1405346116219618010}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 15.2, z: 0}
   m_LocalScale: {x: 16.1725, y: 16.1725, z: 16.1725}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -713,7 +713,8 @@ GameObject:
   - component: {fileID: 2960825203004674294}
   - component: {fileID: 2556864610746149382}
   - component: {fileID: -1276506678610684119}
-  - component: {fileID: 7402896689960833093}
+  - component: {fileID: 3434896695112326453}
+  - component: {fileID: 7377456339392038493}
   m_Layer: 0
   m_Name: Tank
   m_TagString: Monster
@@ -779,7 +780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TankMonster
   name: Tank
-  maxHealth: 100
+  maxHealth: 300
   speed: 2
   rotationSpeed: 150
   targets:
@@ -787,11 +788,11 @@ MonoBehaviour:
   - {fileID: 0}
   _healthbar: {fileID: 7748155022915914642}
   _currentHealth: 0
-  attackRange: 1.5
-  attackDamage: 10
-  attackSpeed: 1.5
+  attackRange: 2
+  attackDamage: 20
+  attackSpeed: 5
   lootDropChance: 1
-  spawningChance: 1
+  spawningChance: 0.05
   spawnMultiplayer: 1
   audioSource: {fileID: 1829904521836398995}
   walkSound: {fileID: 8300000, guid: c780d56b8aa0c5646a0b9aadb6034392, type: 3}
@@ -820,15 +821,37 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 50.54
+  m_Radius: 8.76
   m_SlopeLimit: 45
   m_StepOffset: 0.1
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!65 &7402896689960833093
-BoxCollider:
+  m_Center: {x: 0, y: 26.47, z: 0}
+--- !u!195 &3434896695112326453
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076916028497592576}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 9.75
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 44.46
+  m_BaseOffset: -1.5
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!136 &7377456339392038493
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -845,9 +868,11 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 29.01, y: 38.259995, z: 32.18374}
-  m_Center: {x: 0, y: 18.57, z: -2.7081027}
+  serializedVersion: 2
+  m_Radius: 10
+  m_Height: 50.54
+  m_Direction: 1
+  m_Center: {x: 0, y: 26.5, z: 0}
 --- !u!1 &2275915521700854516
 GameObject:
   m_ObjectHideFlags: 0

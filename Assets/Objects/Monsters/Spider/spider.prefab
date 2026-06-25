@@ -657,6 +657,7 @@ GameObject:
   - component: {fileID: -5683204797505760826}
   - component: {fileID: -4592575928044953791}
   - component: {fileID: 125570620826082565}
+  - component: {fileID: 3827082095754239466}
   m_Layer: 0
   m_Name: spider
   m_TagString: Monster
@@ -743,19 +744,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BasicMonster
   name: Spider
   maxHealth: 1
-  speed: 5
+  speed: 4
   rotationSpeed: 150
   targets:
   - {fileID: 0}
   - {fileID: 0}
   _healthbar: {fileID: 0}
   _currentHealth: 0
-  attackRange: 1.5
+  attackRange: 1
   attackDamage: 1
-  attackSpeed: 1.5
+  attackSpeed: 1
   lootDropChance: 1
-  spawningChance: 1
-  spawnMultiplayer: 9
+  spawningChance: 0.2
+  spawnMultiplayer: 4
   audioSource: {fileID: 2929336366273092305}
   walkSound: {fileID: 8300000, guid: c2bcc709f8b8aa448a71b2541aafb517, type: 3}
   attackSound: {fileID: 8300000, guid: da13add031f7f674ea7c7868ae53876d, type: 3}
@@ -786,6 +787,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.6947498, y: 1.6112701, z: 2.9318104}
   m_Center: {x: -0.10681152, y: 0.9662379, z: 0.011941661}
+--- !u!195 &3827082095754239466
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2780791321456113064}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &2963463474850250854
 GameObject:
   m_ObjectHideFlags: 0

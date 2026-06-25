@@ -8,6 +8,8 @@ public class CheatCodeManager : MonoBehaviour
     [SerializeField] private string killMonstersCheat = "cckill";
     [SerializeField] private string freeShopCheat = "ccfree";
     [SerializeField] private string instaKillCheat = "ccinstakill";
+
+    public AudioSource activationSound;
     
 
     private string inputBuffer = "";
@@ -30,10 +32,8 @@ public class CheatCodeManager : MonoBehaviour
         inputBuffer += char.ToLower(c);
 
         if (inputBuffer.Length > MaxBufferLength)
-        {
             inputBuffer = inputBuffer.Substring(inputBuffer.Length - MaxBufferLength);
-        }
-
+       
         CheckCheats();
     }
 
@@ -68,6 +68,7 @@ public class CheatCodeManager : MonoBehaviour
 
     private void ClearBuffer()
     {
+        activationSound.Play();
         inputBuffer = "";
     }
 

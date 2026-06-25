@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class HudsMaster : MonoBehaviour
 {
@@ -32,10 +33,16 @@ public class HudsMaster : MonoBehaviour
         // Swiching Camera
         if (menuCanvas != null) menuCanvas.SetActive(true);
         if (playerCanvas != null) playerCanvas.SetActive(false);
+        
     }
 
     void Update()
     {
+        if (Keyboard.current != null && Keyboard.current[Key.Escape].wasPressedThisFrame)
+        {
+            ExitGame();
+        }
+
         if (menuCanvas != null && menuCanvas.activeInHierarchy)
         {
             if (!Cursor.visible || Cursor.lockState != CursorLockMode.None)
@@ -69,7 +76,7 @@ public class HudsMaster : MonoBehaviour
             GameMaster.Instance.ClearAllMonsters();
         }
 
-        // Wymuszenie natychmiastowego pokazania napisu NIGHT 1 na œrodku ekranu przez UIManager
+        // Wymuszenie natychmiastowego pokazania napisu NIGHT 1 na ï¿½rodku ekranu przez UIManager
         UIManager uiManager = FindObjectOfType<UIManager>();
         if (uiManager != null)
         {

@@ -1835,7 +1835,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 5e3c123fca0a0c540966108ea8410849, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -1893,8 +1893,8 @@ MonoBehaviour:
   attackRange: 1.5
   attackDamage: 10
   attackSpeed: 1.5
-  lootDropChance: 1
-  spawningChance: 1
+  lootDropChance: 0.8
+  spawningChance: 0.8
   spawnMultiplayer: 1
   audioSource: {fileID: 4591140012050233789}
   walkSound: {fileID: 8300000, guid: b24c7e23f97424b4ab42f6e05f4822d5, type: 3}
@@ -1945,7 +1945,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 1
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!1 &7468511984979865423

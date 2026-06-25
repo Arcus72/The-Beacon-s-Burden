@@ -45,6 +45,8 @@ public class GameMaster : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        if (sunLight != null)
+            sunLight.intensity = isDay ? 1f : 0f;
     }
 
     public void EndGame()
@@ -254,7 +256,7 @@ public class GameMaster : MonoBehaviour
         if (isSpawnMonsters && !isDay)
         {
             spawnTimer += Time.deltaTime;
-            float currentSpawnDelay = Mathf.Max(0.7f, 2.0f - ((currentDay - 1) * 0.08f));
+            float currentSpawnDelay = Mathf.Max(0.7f, 5.0f - ((currentDay - 1) * 0.08f));
 
             if (spawnTimer >= currentSpawnDelay)
             {

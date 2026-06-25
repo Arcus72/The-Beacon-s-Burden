@@ -36,6 +36,7 @@ public class LighthouseScript : MonoBehaviour, IDamageable
     }
 
     public void Restart(){
+        gameObject.SetActive(true);
         health = 100;
         shield = 100;
     }
@@ -80,7 +81,7 @@ public class LighthouseScript : MonoBehaviour, IDamageable
 
     void die()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
         GameMaster.Instance.EndGame();
     }
 

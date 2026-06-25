@@ -1,33 +1,34 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using System.IO;
 
 public class IconGenerator : MonoBehaviour
 {
-    [Header("Przeci¹gnij tutaj prefab broni ze sceny")]
+    [Header("Przeciï¿½gnij tutaj prefab broni ze sceny")]
     public GameObject targetObject;
 
     [Header("Nazwa pliku ikony")]
-    public string iconName = "Broñ_Ikona";
+    public string iconName = "Broï¿½_Ikona";
 
-    [ContextMenu("GENERUJ IKONÊ Z PRZEZROCZYSTOŒCI¥")]
+    [ContextMenu("GENERUJ IKONï¿½ Z PRZEZROCZYSTOï¿½CIï¿½")]
     public void GenerateIcon()
     {
         if (targetObject == null)
         {
-            Debug.LogError("Musisz przypisaæ obiekt w polu Target Object!");
+            Debug.LogError("Musisz przypisaï¿½ obiekt w polu Target Object!");
             return;
         }
 
-        // Pobieramy automatyczn¹ miniaturkê, któr¹ Unity generuje dla edytora
+        // Pobieramy automatycznï¿½ miniaturkï¿½, ktï¿½rï¿½ Unity generuje dla edytora
         Texture2D texture = UnityEditor.AssetPreview.GetAssetPreview(targetObject);
 
         if (texture == null)
         {
-            Debug.LogWarning("Unity jeszcze nie wygenerowa³o podgl¹du. Spróbuj ponownie za chwilê lub kliknij na prefab w folderze Project.");
+            Debug.LogWarning("Unity jeszcze nie wygenerowaï¿½o podglï¿½du. Sprï¿½buj ponownie za chwilï¿½ lub kliknij na prefab w folderze Project.");
             return;
         }
 
-        // Tworzymy now¹ teksturê, w której upewniamy siê, ¿e t³o bêdzie czyst¹ przezroczystoœci¹ (RGBA32)
+        // Tworzymy nowï¿½ teksturï¿½, w ktï¿½rej upewniamy siï¿½, ï¿½e tï¿½o bï¿½dzie czystï¿½ przezroczystoï¿½ciï¿½ (RGBA32)
         Texture2D alphaTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
 
         for (int y = 0; y < texture.height; y++)
@@ -36,8 +37,8 @@ public class IconGenerator : MonoBehaviour
             {
                 Color color = texture.GetPixel(x, y);
 
-                // Trik: Domyœlne miniaturki Unity maj¹ szare t³o. 
-                // Wycinamy je, sprawdzaj¹c czy piksel jest idealnie szarym t³em edytora.
+                // Trik: Domyï¿½lne miniaturki Unity majï¿½ szare tï¿½o. 
+                // Wycinamy je, sprawdzajï¿½c czy piksel jest idealnie szarym tï¿½em edytora.
                 if (color.r > 0.2f && color.r < 0.3f && color.g > 0.2f && color.g < 0.3f && color.b > 0.2f && color.b < 0.3f)
                 {
                     alphaTexture.SetPixel(x, y, Color.clear);
@@ -55,7 +56,8 @@ public class IconGenerator : MonoBehaviour
         string path = Path.Combine(Application.dataPath, iconName + ".png");
         File.WriteAllBytes(path, bytes);
 
-        Debug.Log($"Sukces! Ikona zapisana bez t³a w: {path}");
+        Debug.Log($"Sukces! Ikona zapisana bez tï¿½a w: {path}");
         UnityEditor.AssetDatabase.Refresh();
     }
 }
+#endif
