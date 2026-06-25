@@ -9,15 +9,26 @@ public class Player : MonoBehaviour, IDamageable
 {
     public static Player Instance;
     public PlayerCamera playerCamera;
+
+    [Header("Movement Speeds")]
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
+    public float crouchSpeed = 3f;
+
+    [Header("Movement Smoothness")]
+    [Tooltip("Jak szybko gracz przyspiesza i hamuje na ziemi. Wyższe wartości = ostrzejszy ruch.")]
+    public float movementSmoothness = 8f;
+    [Tooltip("Mnożnik kontroli w powietrzu (0 = brak kontroli, 1 = pełna kontroli jak na ziemi)")]
+    [Range(0f, 1f)] public float airControlFactor = 0.2f;
+    [Tooltip("Jak szybko kamera dopasowuje się do kucania.")]
+    public float crouchSmoothness = 10f;
+
     public float jumpPower = 7f;
     public float gravity = 20f;
     public float lookSpeed = 0.1f;
     public float lookXLimit = 45f;
     public float defaultHeight = 2f;
     public float crouchHeight = 1f;
-    public float crouchSpeed = 3f;
 
     [Header("Health")]
     public float health = 100f;
@@ -28,12 +39,16 @@ public class Player : MonoBehaviour, IDamageable
     private float underwaterTimer = 0f;
 
     [Header("Footsteps Settings")]
-    public AudioSource footstepsAudioSource; // Przypisz komponent Audio Source w Inspektorze
-    public AudioClip[] footstepsClips;        // Wrzu� tutaj pliki d�wi�kowe swoich krok�w
-    public float walkStepRate = 0.5f;         // Odst�p mi�dzy krokami przy chodzeniu (w sekundach)
-    public float runStepRate = 0.3f;          // Odst�p mi�dzy krokami przy bieganiu (szybciej!)
-    public float crouchStepRate = 0.7f;        // Odst�p mi�dzy krokami przy skradaniu (wolniej)
+    public AudioSource footstepsAudioSource;
+    public AudioClip[] footstepsClips;
+    public float walkStepRate = 0.5f;
+    public float runStepRate = 0.3f;
+    public float crouchStepRate = 0.7f;
     private float stepTimer = 0f;
+
+    // Zmienne do płynnego ruchu i bezwładności
+    private Vector3 currentVelocity = Vector3.zero;
+    private float currentHeight;
 
     private Vector3 moveDirection = Vector3.zero;
     private float rotationX = 0;
@@ -41,6 +56,7 @@ public class Player : MonoBehaviour, IDamageable
     private Vector3 spawnPoint;
 
     private bool canMove = true;
+    private bool wasRunningWhenJumped = false; // Zapamiętuje, czy gracz biegł w momencie odbicia
 
     void Awake()
     {
@@ -51,6 +67,7 @@ public class Player : MonoBehaviour, IDamageable
     {
         characterController = GetComponent<CharacterController>();
         spawnPoint = transform.position;
+        currentHeight = defaultHeight;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -58,22 +75,17 @@ public class Player : MonoBehaviour, IDamageable
     public void Heal(int amount)
     {
         health += amount;
-        if (health > 100)
-        {
-            health = 100;
-        }
+        if (health > 100) health = 100;
     }
 
     public void RepairShield(int amount)
     {
         shield += amount;
-        if (shield > 50)
-        {
-            shield = 50;
-        }
+        if (shield > 50) shield = 50;
     }
 
-    public void Restart(){
+    public void Restart()
+    {
         gameObject.SetActive(true);
         shield = 50;
         health = 100;
@@ -81,8 +93,8 @@ public class Player : MonoBehaviour, IDamageable
         characterController.enabled = false;
         transform.position = spawnPoint;
         characterController.enabled = true;
+        currentVelocity = Vector3.zero;
     }
-
 
     public void TakeDamage(float amount)
     {
@@ -107,20 +119,17 @@ public class Player : MonoBehaviour, IDamageable
     void die()
     {
         gameObject.SetActive(false);
-        gameObject.SetActive(false);
         GameMaster.Instance.EndGame();
     }
 
-  
     void Update()
     {
-        // Get input data
         var keyboard = Keyboard.current;
         var mouse = Mouse.current;
 
         if (keyboard == null || mouse == null) return;
 
-        // Movement info
+        // Input kierunkowy
         float moveX = 0;
         float moveY = 0;
         if (keyboard.wKey.isPressed) moveY = 1;
@@ -128,45 +137,69 @@ public class Player : MonoBehaviour, IDamageable
         if (keyboard.dKey.isPressed) moveX = 1;
         if (keyboard.aKey.isPressed) moveX = -1;
 
-        // Mouse
         Vector2 mouseDelta = mouse.delta.ReadValue();
 
-        // Movement
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        bool isRunning = keyboard.leftShiftKey.isPressed;
+        // Logika stanów (Kucanie)
         bool isCrouching = keyboard.ctrlKey.isPressed && canMove;
 
-        float curSpeedX = canMove ? (isCrouching ? crouchSpeed : (isRunning ? runSpeed : walkSpeed)) * moveY : 0;
-        float curSpeedY = canMove ? (isCrouching ? crouchSpeed : (isRunning ? runSpeed : walkSpeed)) * moveX : 0;
-        float movementDirectionY = moveDirection.y;
+        bool isRunning = false;
+        if (characterController.isGrounded)
+        {
+            // MODYFIKACJA (Krok 3): Możesz zacząć biec tylko wciskając W (moveY > 0)
+            isRunning = keyboard.leftShiftKey.isPressed && !isCrouching && moveY > 0 && canMove;
+            wasRunningWhenJumped = isRunning;
+        }
+        else
+        {
+            isRunning = wasRunningWhenJumped;
+        }
 
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        // Dobieranie docelowej prędkości
+        float targetSpeed = walkSpeed;
+        if (isCrouching) targetSpeed = crouchSpeed;
+        else if (isRunning) targetSpeed = runSpeed;
 
-        // Jump
+        float targetSpeedX = canMove ? moveY * targetSpeed : 0;
+        float targetSpeedY = canMove ? moveX * targetSpeed : 0;
+
+        Vector3 desiredVelocity = (forward * targetSpeedX) + (right * targetSpeedY);
+
+        // MODYFIKACJA (Krok 5): Jeśli jesteśmy w powietrzu, drastycznie zmniejszamy płynność (smoothness), 
+        // przez co postać nie reaguje gwałtownie na WSAD i zachowuje pęd lotu.
+        float currentSmoothness = characterController.isGrounded ? movementSmoothness : (movementSmoothness * airControlFactor);
+
+        currentVelocity = Vector3.Lerp(currentVelocity, desiredVelocity, Time.deltaTime * currentSmoothness);
+
+        float previousYVelocity = moveDirection.y;
+        moveDirection = currentVelocity;
+        moveDirection.y = previousYVelocity;
+
+        // Skok i Grawitacja
         if (keyboard.spaceKey.wasPressedThisFrame && canMove && characterController.isGrounded)
+        {
             moveDirection.y = jumpPower;
-        else
-            moveDirection.y = movementDirectionY;
+        }
 
-        // Gravitation
         if (!characterController.isGrounded)
+        {
             moveDirection.y -= gravity * Time.deltaTime;
+        }
+        else if (moveDirection.y < 0)
+        {
+            moveDirection.y = -2f;
+        }
 
-        // Crouch
-        if (isCrouching)
-        {
-            characterController.height = crouchHeight;
-        }
-        else
-        {
-            characterController.height = defaultHeight;
-        }
+        // Płynne kucanie
+        float targetHeight = isCrouching ? crouchHeight : defaultHeight;
+        currentHeight = Mathf.Lerp(currentHeight, targetHeight, Time.deltaTime * crouchSmoothness);
+        characterController.height = currentHeight;
 
         characterController.Move(moveDirection * Time.deltaTime);
 
-        // Rotation
+        // Obrót kamery
         if (canMove)
         {
             rotationX += -mouseDelta.y * lookSpeed;
@@ -206,7 +239,7 @@ public class Player : MonoBehaviour, IDamageable
     {
         Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0, characterController.velocity.z);
 
-        if (characterController.isGrounded && horizontalVelocity.magnitude > 0.1f && canMove)
+        if (characterController.isGrounded && horizontalVelocity.magnitude > 0.5f && canMove)
         {
             stepTimer += Time.deltaTime;
 
@@ -221,12 +254,12 @@ public class Player : MonoBehaviour, IDamageable
                     int randomIndex = Random.Range(0, footstepsClips.Length);
                     footstepsAudioSource.PlayOneShot(footstepsClips[randomIndex]);
                 }
-                stepTimer = 0f; 
+                stepTimer = 0f;
             }
         }
         else
         {
-            stepTimer = walkStepRate;
+            stepTimer = 0f;
         }
     }
 }

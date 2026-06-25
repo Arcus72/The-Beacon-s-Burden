@@ -21386,6 +21386,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2acab14fb38c41143a3552dd026d907d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  bobbingAmountY: 0.05
+  bobbingAmountX: 0.03
+  bobbingSpeedMultiplier: 2.5
+  defaultFOV: 60
+  maxFOVIncrease: 8
+  fovSmoothSpeed: 5
 --- !u!4 &1814787698 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2121115777601841395, guid: e334e6614ad50f749b0a37528784c614, type: 3}
@@ -24652,14 +24658,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MouseLook
   playerCamera: {fileID: 1794644460}
   walkSpeed: 6
-  runSpeed: 12
-  jumpPower: 5.27
+  runSpeed: 9
+  crouchSpeed: 3
+  movementSmoothness: 6
+  airControlFactor: 0.2
+  crouchSmoothness: 8
+  jumpPower: 6
   gravity: 12.4
   lookSpeed: 0.24
   lookXLimit: 45
   defaultHeight: 2
   crouchHeight: 1
-  crouchSpeed: 3
   health: 100
   shield: 50
   sealevel: 1.5

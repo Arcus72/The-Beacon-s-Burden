@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
             int minutes = Mathf.FloorToInt(timeLeft / 60);
             int seconds = Mathf.FloorToInt(timeLeft % 60);
 
-            string phaseName = gameMaster.isDay ? "DO NOCY" : "DO DNIA";
+            string phaseName = gameMaster.isDay ? "Until Night" : "Until Day";
 
             timeText.text = $"{phaseName}: {minutes}:{seconds:00}";
 
