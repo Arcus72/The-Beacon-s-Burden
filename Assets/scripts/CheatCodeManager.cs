@@ -8,6 +8,11 @@ public class CheatCodeManager : MonoBehaviour
     [SerializeField] private string killMonstersCheat = "cckill";
     [SerializeField] private string freeShopCheat = "ccfree";
     [SerializeField] private string instaKillCheat = "ccinstakill";
+    [SerializeField] private string spawnMonstersCheat = "ccspawn";
+
+    [SerializeField] private GameObject spawnMonster1;
+    [SerializeField] private GameObject spawnMonster2;
+    [SerializeField] private GameObject spawnMonster3;
 
     public AudioSource activationSound;
     
@@ -64,6 +69,11 @@ public class CheatCodeManager : MonoBehaviour
             ActivateInstaKillCheat();
             ClearBuffer();
         }
+         else if (inputBuffer.Contains(spawnMonstersCheat))
+        {
+            ActivateSpawnMonstersCheat();
+            ClearBuffer();
+        }
     }
 
     private void ClearBuffer()
@@ -102,5 +112,14 @@ public class CheatCodeManager : MonoBehaviour
         Debug.Log("Cheat Activated: Insta kill");
         Player.Instance.TakeDamage(200);
         Player.Instance.TakeDamage(200);
+    }
+
+    private void ActivateSpawnMonstersCheat()
+    {
+        Debug.Log("Cheat Activated: Spawn monsters");
+        Vector3 origin = Player.Instance.transform.position + Player.Instance.transform.forward * 2f;
+        if (spawnMonster1 != null) Instantiate(spawnMonster1, origin, Quaternion.identity);
+        if (spawnMonster2 != null) Instantiate(spawnMonster2, origin + Vector3.right * 2f, Quaternion.identity);
+        if (spawnMonster3 != null) Instantiate(spawnMonster3, origin + Vector3.right * 4f, Quaternion.identity);
     }
 }

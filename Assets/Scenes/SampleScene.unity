@@ -1361,6 +1361,10 @@ MonoBehaviour:
   killMonstersCheat: cckill
   freeShopCheat: ccfree
   instaKillCheat: ccinstakill
+  spawnMonstersCheat: ccspawn
+  spawnMonster1: {fileID: 7440214316909343961, guid: f349060902a63914ea0a15227f066138, type: 3}
+  spawnMonster2: {fileID: 2780791321456113064, guid: 8c677ee6c2e1f6248be8d9d787dd4d7c, type: 3}
+  spawnMonster3: {fileID: 2076916028497592576, guid: 592c70823cb35c047b400db582246c8b, type: 3}
   activationSound: {fileID: 731343728}
 --- !u!1001 &59681267
 PrefabInstance:
