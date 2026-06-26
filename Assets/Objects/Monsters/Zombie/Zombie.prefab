@@ -1904,7 +1904,7 @@ MonoBehaviour:
   attackVolume: 0.587
   deathVolume: 0.751
   totalAttacks: 1
-  totalWalk: 2
+  totalWalk: 1
 --- !u!65 &7043472908872893301
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Lighthouse Shield Data
   m_EditorClassIdentifier: Assembly-CSharp::LighthouseShieldItem
   itemName: Lighthouse shield
-  price: 2
+  price: 6
   price_type: {fileID: 11400000, guid: b1bf583a36b6cc04f867919a60c58d1c, type: 2}

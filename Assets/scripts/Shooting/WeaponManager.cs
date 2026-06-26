@@ -130,12 +130,10 @@ public class WeaponManager : MonoBehaviour
     }
 
 
-        public void Restart()
+    public void Restart()
     {
         weaponAmmo = new int[weapons.Length];
         weaponAmmo[0] = 9999;
-        for (int i = 1; i < weapons.Length; i++)
-            weaponAmmo[i] = 0;
 
         currentWeaponIndex = 0;
         SelectWeapon(0);

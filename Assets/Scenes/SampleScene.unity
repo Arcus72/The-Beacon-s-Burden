@@ -7546,14 +7546,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 695505860e32c8a46841b33f69a9d357, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShotgunShooting
-  damagePerPellet: 10
+  damagePerPellet: 8
   pelletCount: 12
-  range: 25
+  range: 10
   spreadSpread: 0.1
   ignoreLayer:
     serializedVersion: 2
     m_Bits: 68
-  fireRate: 0.8
+  fireRate: 0.3
   gunAnimator: {fileID: 613512601}
   shootAnimationName: Shotgun_Shoot
   muzzlePoint: {fileID: 264390213}
@@ -25785,7 +25785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b685c3b4bf96ff540bc95cb5d881e5bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooting
-  damage: 20
+  damage: 15
   range: 70
   ignoreLayer:
     serializedVersion: 2

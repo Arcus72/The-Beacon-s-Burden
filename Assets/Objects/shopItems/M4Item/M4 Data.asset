@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: M4 Data
   m_EditorClassIdentifier: Assembly-CSharp::ShotgunItem
   itemName: M4
-  price: 2
+  price: 6
   price_type: {fileID: 11400000, guid: e0207ff9e49873f42a479c7e252284ca, type: 2}
   weaponNumber: 2

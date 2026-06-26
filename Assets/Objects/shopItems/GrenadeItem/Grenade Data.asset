@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Grenade Data
   m_EditorClassIdentifier: Assembly-CSharp::ShotgunItem
   itemName: Grenade
-  price: 3
+  price: 10
   price_type: {fileID: 11400000, guid: e0207ff9e49873f42a479c7e252284ca, type: 2}
   weaponNumber: 3

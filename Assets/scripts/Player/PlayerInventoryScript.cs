@@ -30,6 +30,7 @@ public class PlayerInventory : MonoBehaviour
 
     public void RestartInventory(){
         items = new Dictionary<ItemData, int>();
+        UpdateInventoryUI();
     }
 
     public void AddItem(ItemData item, int amount = 1)
